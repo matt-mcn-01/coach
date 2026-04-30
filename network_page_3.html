@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Network</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f0f; --border: #2e2e2e; --accent: #00d4aa;
+      --accent-dim: #00d4aa22; --text: #e8e8e8; --text-muted: #666;
+      --surface: #1a1a1a; --radius: 10px;
+      --font-mono: 'IBM Plex Mono', monospace;
+      --font-ui: 'IBM Plex Sans', sans-serif;
+    }
+    body {
+      background: url('/KCS_Arch_COPYRIGHT.jpg') center/cover no-repeat fixed, var(--bg);
+      color: var(--text); font-family: var(--font-ui);
+      height: 100dvh; display: flex; flex-direction: column; align-items: center; overflow: hidden;
+    }
+    .page-wrapper {
+      width: 100%; max-width: 720px; height: 100dvh;
+      display: flex; flex-direction: column;
+      padding: 0 clamp(8px, 2vw, 16px);
+      gap: clamp(6px, 1.2vh, 12px);
+    }
+    .section-nav { flex-shrink: 0; padding: clamp(10px, 2vh, 20px) 0 0; }
+    nav { display: flex; gap: clamp(4px, 0.8vw, 8px); }
+    nav a {
+      background: #0f0f0f;
+      flex: 1; text-align: center;
+      font-family: var(--font-mono); font-size: clamp(9px, 1.2vw, 11px); font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
+      padding: clamp(5px, 0.8vh, 7px) clamp(4px, 1vw, 14px);
+      border-radius: 6px; border: 1px solid var(--border);
+      color: var(--text-muted); transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    nav a:hover  { color: var(--text); border-color: #555; }
+    nav a.active { color: var(--accent); border-color: var(--accent); background: #0f1917; }
+    .section-content {
+      flex: 1; min-height: 0; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: clamp(11px, 1.5vw, 13px);
+      margin-bottom: clamp(6px, 1.2vh, 16px);
+    }
+    @media (max-width: 480px) { nav a { font-size: 9px; padding: 5px 4px; } }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="section-nav">
+      <nav>
+        <a href="/index.html">Dashboard</a>
+        <a href="/deep_work_page_2.html" >Deep Work</a>
+        <a href="/network_page_3.html" class="active">Network</a>
+        <a href="/career_path_page_4.html" >Career Path</a>
+        <a href="/settings_page_5.html" >Settings</a>
+      </nav>
+    </div>
+    <div class="section-content">Network — coming soon</div>
+  </div>
+
+  <!-- Floating chat -->
+  <div id="fc-bar" style="
+    position:fixed; bottom:16px; right:16px;
+    width:320px; height:38px;
+    background:#1a1a1a; border:1px solid #2e2e2e; border-radius:8px;
+    display:flex; align-items:center; gap:8px; padding:0 12px;
+    cursor:pointer; z-index:1000; user-select:none;
+  " onclick="fcToggle()">
+    <div id="fc-status-dot" style="width:6px;height:6px;border-radius:50%;background:#e74c3c;box-shadow:0 0 6px #e74c3c;animation:fc-pulse 2s ease-in-out infinite;flex-shrink:0;transition:background 0.3s,box-shadow 0.3s;"></div>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#666;">Coach</span>
+    <span id="fc-chevron" style="margin-left:auto;font-size:10px;color:#666;transition:transform 0.2s;">▲</span>
+  </div>
+
+  <div id="fc-panel" style="
+    position:fixed; bottom:62px; right:16px;
+    width:320px; max-height:0; overflow:hidden;
+    background:transparent; border:1px solid transparent; border-radius:8px;
+    z-index:999; transition:max-height 0.28s ease, border-color 0.28s ease, background 0.28s ease;
+    display:flex; flex-direction:column;
+  ">
+    <div style="padding:10px 12px;border-bottom:1px solid #2e2e2e;display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <div id="fc-panel-dot" style="width:6px;height:6px;border-radius:50%;background:#e74c3c;box-shadow:0 0 6px #e74c3c;animation:fc-pulse 2s ease-in-out infinite;transition:background 0.3s,box-shadow 0.3s;"></div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#666;">Coaching Agent</span>
+    </div>
+    <div id="fc-messages" style="
+      overflow-y:auto; padding:10px 12px;
+      display:flex; flex-direction:column; gap:8px;
+      flex:1;
+      scrollbar-width:thin; scrollbar-color:#2e2e2e transparent;
+    "></div>
+    <div style="padding:8px 12px;border-top:1px solid #2e2e2e;display:flex;gap:6px;align-items:flex-end;flex-shrink:0;">
+      <textarea id="fc-input" rows="1" placeholder="Message…" style="
+        flex:1;background:#0f0f0f;border:1px solid #2e2e2e;border-radius:6px;
+        color:#e8e8e8;font-family:'IBM Plex Sans',sans-serif;font-size:12px;
+        padding:8px 10px;resize:none;min-height:34px;max-height:80px;
+        outline:none;transition:border-color 0.2s;line-height:1.4;
+      "></textarea>
+      <button id="fc-send" style="
+        background:#00d4aa;border:none;border-radius:6px;color:#0f0f0f;
+        font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;
+        padding:0 12px;height:34px;cursor:pointer;white-space:nowrap;flex-shrink:0;
+        transition:opacity 0.2s;
+      ">Send</button>
+    </div>
+  </div>
+
+  <style>
+    @keyframes fc-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    @keyframes fc-blink { 0%,100%{opacity:0.2;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
+    .fc-wrap { display:flex;flex-direction:column;gap:2px; }
+    .fc-wrap.user { align-self:flex-end;align-items:flex-end; }
+    .fc-wrap.ai   { align-self:flex-start;align-items:flex-start; }
+    .fc-label { font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:#666;padding:0 2px; }
+    .fc-msg { font-size:12px;line-height:1.5;padding:7px 10px;border-radius:6px;border:1px solid #2e2e2e;max-width:90%; }
+    .fc-msg.user { background:#1e2a27;border-color:#00d4aa;color:#e8e8e8; }
+    .fc-msg.ai   { background:#0f0f0f;color:#e8e8e8; }
+    #fc-input:focus { border-color:#00d4aa !important; }
+    #fc-send:hover  { opacity:0.85; }
+    #fc-send:disabled { opacity:0.35;cursor:not-allowed; }
+    #fc-panel.open { max-height: calc(50dvh - 78px) !important; }
+    @media (max-width:480px) {
+      #fc-bar, #fc-panel { width:calc(100% - 32px); right:16px; }
+    }
+  </style>
+
+  <script>
+    const HISTORY_KEY = 'coach_history';
+    let fcHistory = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
+
+    const fcPanel     = document.getElementById('fc-panel');
+    const fcMessages  = document.getElementById('fc-messages');
+    const fcInput     = document.getElementById('fc-input');
+    const fcSend      = document.getElementById('fc-send');
+    const fcChevron   = document.getElementById('fc-chevron');
+    const fcStatusDot = document.getElementById('fc-status-dot');
+    const fcPanelDot  = document.getElementById('fc-panel-dot');
+
+    function fcSaveHistory() { sessionStorage.setItem(HISTORY_KEY, JSON.stringify(fcHistory)); }
+
+    function fcSetConnected(on) {
+      const col = on ? '#00d4aa' : '#e74c3c';
+      const glow = on ? '0 0 6px #00d4aa' : '0 0 6px #e74c3c';
+      fcStatusDot.style.background = col;
+      fcStatusDot.style.boxShadow  = glow;
+      fcPanelDot.style.background  = col;
+      fcPanelDot.style.boxShadow   = glow;
+    }
+
+    async function fcCheckConnection() {
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: '__ping__', history: [] }),
+        });
+        if (res.ok) fcSetConnected(true);
+      } catch (err) { fcSetConnected(false); }
+    }
+    fcCheckConnection();
+
+    function fcApplyState(open) {
+      if (open) {
+        fcPanel.classList.add('open');
+      } else {
+        fcPanel.classList.remove('open');
+        fcPanel.style.maxHeight = '0';
+      }
+      fcPanel.style.borderColor = open ? '#2e2e2e' : 'transparent';
+      fcPanel.style.background  = open ? '#1a1a1a' : 'transparent';
+      fcChevron.style.transform = open ? 'rotate(180deg)' : '';
+    }
+
+    function fcRenderMessage(role, text) {
+      const wrap  = document.createElement('div');
+      wrap.className = 'fc-wrap ' + (role === 'user' ? 'user' : 'ai');
+      const label = document.createElement('div');
+      label.className = 'fc-label';
+      label.textContent = role === 'user' ? 'You' : 'Coach';
+      const msg   = document.createElement('div');
+      msg.className = 'fc-msg ' + (role === 'user' ? 'user' : 'ai');
+      msg.textContent = text;
+      wrap.appendChild(label); wrap.appendChild(msg);
+      fcMessages.appendChild(wrap);
+      fcMessages.scrollTop = fcMessages.scrollHeight;
+    }
+
+    function fcToggle() {
+      fcHistory = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
+      const fcOpen = sessionStorage.getItem('coach_open') !== 'false';
+      const newOpen = !fcOpen;
+      sessionStorage.setItem('coach_open', newOpen);
+      fcApplyState(newOpen);
+      if (newOpen) {
+        fcMessages.innerHTML = '';
+        fcHistory.forEach(m => fcRenderMessage(m.role === 'user' ? 'user' : 'ai', m.content));
+        setTimeout(() => fcInput.focus(), 300);
+      }
+    }
+
+    fcInput.addEventListener('input', () => {
+      fcInput.style.height = 'auto';
+      fcInput.style.height = Math.min(fcInput.scrollHeight, 80) + 'px';
+    });
+    fcInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); fcSendMessage(); }
+    });
+    fcSend.addEventListener('click', fcSendMessage);
+
+    async function fcSendMessage() {
+      const text = fcInput.value.trim();
+      if (!text) return;
+      fcInput.value = ''; fcInput.style.height = 'auto'; fcSend.disabled = true;
+      fcRenderMessage('user', text);
+      const typingWrap = document.createElement('div');
+      typingWrap.className = 'fc-wrap ai'; typingWrap.id = 'fc-typing';
+      typingWrap.innerHTML = '<div class="fc-label">Coach</div><div class="fc-msg ai" style="display:flex;gap:4px;align-items:center;"><span style="width:5px;height:5px;border-radius:50%;background:#00d4aa;animation:fc-blink 1.2s ease-in-out infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:#00d4aa;animation:fc-blink 1.2s ease-in-out 0.2s infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:#00d4aa;animation:fc-blink 1.2s ease-in-out 0.4s infinite;display:inline-block;"></span></div>';
+      fcMessages.appendChild(typingWrap);
+      fcMessages.scrollTop = fcMessages.scrollHeight;
+      try {
+        const res  = await fetch('/api/chat', { // API KEY FOR LLM. ##############################################################
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, history: fcHistory }),
+        });
+        const data = await res.json();
+        document.getElementById('fc-typing')?.remove();
+        fcSetConnected(true);
+        if (data.error) { fcRenderMessage('ai', 'Error: ' + data.error); }
+        else {
+          fcRenderMessage('ai', data.reply);
+          fcHistory.push({ role: 'user',  content: text });
+          fcHistory.push({ role: 'coach', content: data.reply });
+          fcSaveHistory();
+        }
+      } catch (err) {
+        document.getElementById('fc-typing')?.remove();
+        fcSetConnected(false);
+        fcRenderMessage('ai', 'Could not reach the server.');
+      } finally {
+        fcSend.disabled = false; fcInput.focus();
+      }
+    }
+
+    const initOpen = sessionStorage.getItem('coach_open') !== 'false';
+    fcApplyState(initOpen);
+    if (initOpen) {
+      fcHistory.forEach(m => fcRenderMessage(m.role === 'user' ? 'user' : 'ai', m.content));
+    }
+  </script>
+</body>
+</html>
