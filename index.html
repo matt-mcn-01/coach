@@ -8,176 +8,180 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --text: #1a1a2e;
-      --text-muted: #8888aa;
-      --bg: #979797;
-      --surface: #ffffff;
-      --border: #dcdcec;
-      --accent: #7c3aed;
-      --accent-dim: #7c3aed18;
-      --accent-light: #ede9fe;
-      --user-bg: #ede9fe;
-      --ai-bg: #f8f8fc;
-      --panel-bg: #e4e4ef;
-      --panel-border: #c8c8de;
-      --radius: 10px;
-      --font-ui: 'IBM Plex Sans', sans-serif;
-      --font-mono: 'IBM Plex Mono', monospace;
+      --text: #1a1a2e; --text-muted: #8888aa; --bg: #979797;
+      --surface: #ffffff; --border: #dcdcec; --accent: #7c3aed;
+      --accent-light: #ede9fe; --user-bg: #ede9fe;
+      --panel-bg: #e4e4ef; --panel-border: #c8c8de;
+      --radius: 10px; --font-ui: 'IBM Plex Sans', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace; --sw: 220px;
     }
-
     body {
       background: url('/KCS_Arch_COPYRIGHT.jpg') center/cover no-repeat fixed, var(--bg);
       color: var(--text); font-family: var(--font-ui);
       height: 100dvh; display: flex; overflow: hidden;
     }
 
+    /* ══ CENTRE ══ */
     .page-wrapper {
       flex: 1; min-width: 0; height: 100dvh;
       display: flex; flex-direction: column; align-items: center;
-      padding: 0 clamp(8px, 2vw, 16px);
-      gap: clamp(6px, 1.2vh, 12px);
-      overflow: hidden;
+      padding: 0 clamp(8px,2vw,16px); gap: clamp(6px,1.2vh,12px);
+      overflow: hidden; margin-left: var(--sw); margin-right: var(--sw);
     }
-
-    .section-nav {
-      flex-shrink: 0; width: 100%; max-width: 720px;
-      padding: clamp(10px, 2vh, 20px) 0 0;
-    }
-    nav { display: flex; gap: clamp(4px, 0.8vw, 8px); }
+    .section-nav { flex-shrink:0; width:100%; max-width:720px; padding: clamp(10px,2vh,20px) 0 0; }
+    nav { display:flex; gap: clamp(4px,0.8vw,8px); }
     nav a {
-      background: var(--surface); flex: 1; text-align: center;
-      font-family: var(--font-mono); font-size: clamp(9px, 1.2vw, 11px); font-weight: 500;
-      letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
-      padding: clamp(5px, 0.8vh, 7px) clamp(4px, 1vw, 14px);
-      border-radius: 6px; border: 1px solid var(--border);
-      color: var(--text-muted); transition: color 0.15s, border-color 0.15s, background 0.15s;
+      background:var(--surface); flex:1; text-align:center;
+      font-family:var(--font-mono); font-size:clamp(9px,1.2vw,11px); font-weight:500;
+      letter-spacing:0.08em; text-transform:uppercase; text-decoration:none;
+      padding:clamp(5px,0.8vh,7px) clamp(4px,1vw,14px);
+      border-radius:6px; border:1px solid var(--border); color:var(--text-muted);
+      transition:color .15s, border-color .15s, background .15s;
     }
-    nav a:hover  { color: var(--text); border-color: #aaa; }
-    nav a.active { color: var(--accent); border-color: var(--accent); background: var(--accent-light); }
+    nav a:hover  { color:var(--text); border-color:#aaa; }
+    nav a.active { color:var(--accent); border-color:var(--accent); background:var(--accent-light); }
+    .section-content {
+      flex:1; min-height:0; width:100%; max-width:720px;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); color:var(--text-muted);
+      font-family:var(--font-mono); font-size:clamp(11px,1.5vw,13px);
+      margin-bottom:clamp(6px,1.2vh,16px);
+    }
 
-    .section-chat {
-      flex: 1; min-height: 0; width: 100%; max-width: 720px;
+    /* ══ SIDEBARS — positioned by JS to hug the centre box ══ */
+    .sidebar {
+      position: fixed; top: 0; bottom: 0;
+      width: var(--sw); pointer-events: none; z-index: 100;
+    }
+
+    /* ══ PANELS — absolutely positioned by JS ══ */
+    .panel {
+      position: absolute; left: 0; right: 0;
+      background: var(--panel-bg); border: 1px solid var(--panel-border);
+      border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.10);
       display: flex; flex-direction: column;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden;
-      margin-bottom: clamp(6px, 1.2vh, 16px);
+      overflow: hidden; pointer-events: all;
+      transition: bottom .28s ease, height .28s ease;
     }
-    .chat-header {
-      padding: clamp(10px, 1.5vh, 14px) 16px;
-      display: flex; align-items: center; gap: 10px;
-      border-bottom: 1px solid var(--border); flex-shrink: 0;
-      background: var(--surface);
-    }
-    .header-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: #f87171; box-shadow: 0 0 6px #f87171;
-      animation: pulse 2s ease-in-out infinite;
-      transition: background 0.3s, box-shadow 0.3s;
-    }
-    .header-dot.connected { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-    .chat-header h1 {
-      font-family: var(--font-mono); font-size: 13px; font-weight: 500;
-      letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted);
-    }
-    .chat-header span {
-      margin-left: auto; font-family: var(--font-mono); font-size: 11px;
-      color: var(--accent); background: var(--accent-light);
-      padding: 3px 8px; border-radius: 4px; border: 1px solid #c4b5fd;
-    }
-    #chat-messages {
-      flex: 1; overflow-y: auto; padding: 16px;
-      display: flex; flex-direction: column; gap: 16px;
-      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
-      background: var(--ai-bg);
-    }
-    .message { display: flex; flex-direction: column; gap: 4px; max-width: 85%; animation: fadeUp 0.2s ease; }
-    @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-    .message.user { align-self: flex-end; align-items: flex-end; }
-    .message.ai   { align-self: flex-start; align-items: flex-start; }
-    .message-label {
-      font-family: var(--font-mono); font-size: 10px;
-      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); padding: 0 4px;
-    }
-    .message-bubble {
-      padding: 12px 16px; border-radius: var(--radius);
-      font-size: 14px; line-height: 1.6; border: 1px solid var(--border);
-    }
-    .message.user .message-bubble { background: var(--user-bg); border-color: #c4b5fd; color: var(--text); }
-    .message.ai   .message-bubble { background: var(--surface); color: var(--text); }
-    .typing-indicator {
-      display: flex; gap: 5px; align-items: center;
-      padding: 14px 16px; background: var(--surface);
-      border: 1px solid var(--border); border-radius: var(--radius); width: fit-content;
-    }
-    .typing-indicator span {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--accent); opacity: 0.4; animation: blink 1.2s ease-in-out infinite;
-    }
-    .typing-indicator span:nth-child(2){animation-delay:0.2s}
-    .typing-indicator span:nth-child(3){animation-delay:0.4s}
-    @keyframes blink { 0%,100%{opacity:0.2;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
-    .empty-state {
-      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 8px; color: var(--text-muted); font-family: var(--font-mono); font-size: 13px;
-    }
-    .empty-state svg { opacity: 0.2; margin-bottom: 8px; }
-    .chat-input-area {
-      padding: 12px 16px; border-top: 1px solid var(--border);
-      flex-shrink: 0; background: var(--surface);
-    }
-    .input-row { display: flex; gap: 10px; align-items: flex-end; }
-    #user-input {
-      flex: 1; background: var(--panel-bg); border: 1px solid var(--border);
-      border-radius: var(--radius); color: var(--text); font-family: var(--font-ui); font-size: 14px;
-      padding: 12px 16px; resize: none; min-height: 48px; max-height: 140px;
-      outline: none; transition: border-color 0.2s; line-height: 1.5;
-    }
-    #user-input:focus { border-color: var(--accent); }
-    #user-input::placeholder { color: var(--text-muted); }
-    #send-btn {
-      background: var(--accent); border: none; border-radius: var(--radius);
-      color: #fff; font-family: var(--font-mono); font-size: 13px; font-weight: 500;
-      padding: 0 20px; height: 48px; cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s; white-space: nowrap; flex-shrink: 0;
-    }
-    #send-btn:hover   { opacity: 0.85; }
-    #send-btn:active  { transform: scale(0.97); }
-    #send-btn:disabled{ opacity: 0.35; cursor: not-allowed; }
-    .hint { font-size: 11px; color: var(--text-muted); margin-top: 8px; font-family: var(--font-mono); }
+    .sidebar.left  .panel { left: 8px; right: 0; }
+    .sidebar.right .panel { left: 0; right: 8px; }
 
-    @media (max-width: 480px) {
-      .chat-header h1 { font-size: 11px; }
-      .message-bubble { font-size: 13px; }
-      #send-btn { padding: 0 12px; font-size: 12px; }
-      .hint { display: none; }
+    .panel-header {
+      height: 38px; flex-shrink: 0; padding: 0 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; user-select: none;
+      border-bottom: 1px solid transparent; transition: border-color .2s;
+    }
+    .panel-header.expanded { border-bottom-color: var(--panel-border); }
+    .panel-header-left { display:flex; align-items:center; gap:8px; }
+    .panel-title { font-family:var(--font-mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); }
+    .panel-chevron { font-size:10px; color:var(--text-muted); transition:transform .25s; }
+    .panel-body { flex:1; overflow:hidden; display:flex; flex-direction:column; min-height:0; }
+    .panel-inner {
+      padding:12px; display:flex; flex-direction:column; gap:10px;
+      overflow-y:auto; flex:1;
+      scrollbar-width:thin; scrollbar-color:var(--border) transparent;
     }
 
-    /* ── Signals floating panel ── */
-    .sig-row   { display: flex; flex-direction: column; gap: 3px; }
-    .sig-label { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); line-height: 1.3; }
-    .sig-value { font-size: 14px; font-weight: 500; color: var(--text); }
-    .sig-pct   { font-size: 10px; color: var(--accent); margin-top: 1px; }
-    .sig-divider { border: none; border-top: 1px solid var(--panel-border); margin: 2px 0; }
-    .bar-track { height: 3px; background: var(--panel-border); border-radius: 2px; margin-top: 5px; }
-    .bar-fill  { height: 3px; border-radius: 2px; transition: width 0.6s ease; }
-    .scenario-badge {
-      font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
-      letter-spacing: .06em; padding: 3px 7px; border-radius: 4px;
-    }
-    .scenario-badge.overloaded { color: #dc2626; background: #fee2e2; border: 1px solid #fca5a5; }
-    .scenario-badge.balanced   { color: var(--accent); background: var(--accent-light); border: 1px solid #c4b5fd; }
-    .scenario-badge.isolated   { color: #d97706; background: #fef3c7; border: 1px solid #fcd34d; }
-    #sig-panel.open { max-height: calc(80dvh - 78px) !important; }
+    /* ══ BADGE ══ */
+    .scenario-badge { font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em; padding:3px 7px; border-radius:4px; }
+    .scenario-badge.overloaded { color:#dc2626; background:#fee2e2; border:1px solid #fca5a5; }
+    .scenario-badge.balanced   { color:var(--accent); background:var(--accent-light); border:1px solid #c4b5fd; }
+    .scenario-badge.isolated   { color:#d97706; background:#fef3c7; border:1px solid #fcd34d; }
 
-    @media (max-width: 480px) {
-      #sig-bar, #sig-panel { width: calc(100% - 32px); left: 16px; }
+    /* ══ SIGNALS ══ */
+    .sig-row   { display:flex; flex-direction:column; gap:3px; }
+    .sig-label { font-size:11px; color:var(--text-muted); font-family:var(--font-mono); line-height:1.3; }
+    .sig-value { font-size:14px; font-weight:500; color:var(--text); }
+    .sig-pct   { font-size:10px; color:var(--accent); margin-top:1px; }
+    .sig-divider { border:none; border-top:1px solid var(--panel-border); margin:2px 0; }
+    .bar-track { height:3px; background:var(--panel-border); border-radius:2px; margin-top:5px; }
+    .bar-fill  { height:3px; border-radius:2px; transition:width .6s ease; }
+
+    /* ══ MEETING PREP ══ */
+    .meeting-card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:10px; display:flex; flex-direction:column; gap:4px; flex-shrink:0; }
+    .meeting-card-subject { font-size:12px; font-weight:500; color:var(--text); line-height:1.3; }
+    .meeting-card-time    { font-family:var(--font-mono); font-size:10px; color:var(--accent); }
+    .meeting-card-people  { font-size:10px; color:var(--text-muted); }
+    .prep-empty { font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-align:center; padding:8px 0; }
+
+    /* ══ CHECKLIST ══ */
+    .checklist-item { display:flex; align-items:flex-start; gap:8px; padding:8px; background:var(--surface); border:1px solid var(--border); border-radius:6px; transition:opacity .2s; flex-shrink:0; }
+    .checklist-item.done { opacity:.45; }
+    .checklist-item.done .task-text { text-decoration:line-through; color:var(--text-muted); }
+    .checklist-cb { width:14px; height:14px; border-radius:3px; border:1.5px solid var(--panel-border); background:var(--panel-bg); cursor:pointer; flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center; transition:background .15s,border-color .15s; }
+    .checklist-cb.checked { background:var(--accent); border-color:var(--accent); }
+    .checklist-cb.checked::after { content:'✓'; color:#fff; font-size:9px; line-height:1; }
+    .task-text { font-size:11px; color:var(--text); line-height:1.4; }
+    .cl-loading { font-family:var(--font-mono); font-size:10px; color:var(--text-muted); display:flex; align-items:center; justify-content:center; gap:6px; padding:8px 0; }
+    .refresh-btn { width:100%; padding:7px; background:var(--accent-light); border:1px solid #c4b5fd; border-radius:6px; font-family:var(--font-mono); font-size:10px; font-weight:500; color:var(--accent); cursor:pointer; text-transform:uppercase; letter-spacing:.06em; transition:background .15s,opacity .2s; flex-shrink:0; }
+    .refresh-btn:hover { background:#ddd6fe; }
+    .refresh-btn:disabled { opacity:.4; cursor:not-allowed; }
+
+    /* ══ COACH ══ */
+    @keyframes fp { 0%,100%{opacity:1} 50%{opacity:.4} }
+    @keyframes fb { 0%,100%{opacity:.2;transform:scale(.8)} 50%{opacity:1;transform:scale(1)} }
+    @keyframes bl { 0%,100%{opacity:.2;transform:scale(.8)} 50%{opacity:1;transform:scale(1)} }
+    .fc-wrap { display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
+    .fc-wrap.user { align-self:flex-end; align-items:flex-end; }
+    .fc-wrap.ai   { align-self:flex-start; align-items:flex-start; }
+    .fc-label { font-family:var(--font-mono); font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); padding:0 2px; }
+    .fc-msg { font-size:12px; line-height:1.5; padding:7px 10px; border-radius:6px; border:1px solid var(--border); max-width:90%; }
+    .fc-msg.user { background:var(--user-bg); border-color:#c4b5fd; color:var(--text); }
+    .fc-msg.ai   { background:var(--surface); color:var(--text); }
+
+    @media (max-width:900px) {
+      .sidebar { display:none; }
+      .page-wrapper { margin:0; }
     }
   </style>
 </head>
 <body>
 
-  <div class="page-wrapper">
+  <!-- ══ LEFT SIDEBAR ══ -->
+  <div class="sidebar left" id="sb-left">
+    <div class="panel" id="p-mp">
+      <div class="panel-header expanded" id="h-mp" onclick="togglePanel('mp')">
+        <div class="panel-header-left"><span class="panel-title">Meeting Prep</span></div>
+        <span class="panel-chevron" id="c-mp">▲</span>
+      </div>
+      <div class="panel-body">
+        <div class="panel-inner" id="mp-content"><div class="prep-empty">Loading…</div></div>
+      </div>
+    </div>
+    <div class="panel" id="p-sig">
+      <div class="panel-header expanded" id="h-sig" onclick="togglePanel('sig')">
+        <div class="panel-header-left">
+          <span class="panel-title">Weekly Signals</span>
+          <span class="scenario-badge" id="sig-scenario">—</span>
+        </div>
+        <span class="panel-chevron" id="c-sig">▲</span>
+      </div>
+      <div class="panel-body">
+        <div class="panel-inner">
+          <div class="sig-row"><span class="sig-label">Total meetings</span><span class="sig-value" id="sig-total">—</span></div>
+          <div class="sig-row">
+            <span class="sig-label">Meeting time</span><span class="sig-value" id="sig-time">—</span>
+            <span class="sig-pct" id="sig-time-pct"></span>
+            <div class="bar-track"><div class="bar-fill" id="bar-meet" style="background:var(--accent);width:0%"></div></div>
+          </div>
+          <div class="sig-row"><span class="sig-label">Back-to-back</span><span class="sig-value" id="sig-b2b">—</span></div>
+          <div class="sig-row"><span class="sig-label">Focus blocks (60m+)</span><span class="sig-value" id="sig-fb">—</span></div>
+          <hr class="sig-divider"/>
+          <div class="sig-row">
+            <span class="sig-label">Focus hours</span><span class="sig-value" id="sig-fh">—</span>
+            <span class="sig-pct" id="sig-fh-pct"></span>
+            <div class="bar-track"><div class="bar-fill" id="bar-focus" style="width:0%"></div></div>
+          </div>
+          <div class="sig-row"><span class="sig-label">Collab hours</span><span class="sig-value" id="sig-ch">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CENTRE ══ -->
+  <div class="page-wrapper" id="page-wrapper">
     <div class="section-nav">
       <nav>
         <a href="index.html" class="active">Dashboard</a>
@@ -187,216 +191,327 @@
         <a href="settings_page_5.html">Settings</a>
       </nav>
     </div>
-
-    <div class="section-chat">
-      <div class="chat-header">
-        <div class="header-dot" id="status-dot"></div>
-        <h1>Coaching Agent</h1>
-        <span>GPT-4o</span>
-      </div>
-      <div id="chat-messages">
-        <div class="empty-state" id="empty-state">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          Start a conversation
-        </div>
-      </div>
-      <div class="chat-input-area">
-        <div class="input-row">
-          <textarea id="user-input" placeholder="Type a message…" rows="1"></textarea>
-          <button id="send-btn">Send →</button>
-        </div>
-        <div class="hint">Press Enter to send · Shift+Enter for new line</div>
-      </div>
-    </div>
+    <div class="section-content">Dashboard — coming soon</div>
   </div>
 
-  <!-- ── Signals bar (bottom-left) ── -->
-  <div id="sig-bar" style="
-    position:fixed; bottom:16px; left:16px; width:240px; height:38px;
-    background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:8px;
-    display:flex; align-items:center; gap:8px; padding:0 12px;
-    cursor:pointer; z-index:1000; user-select:none;
-    box-shadow:0 2px 8px rgba(0,0,0,0.10);
-  " onclick="sigToggle()">
-    <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);">Weekly Signals</span>
-    <span id="sig-chevron" style="margin-left:auto;font-size:10px;color:var(--text-muted);transition:transform 0.2s;">▲</span>
-  </div>
-
-  <div id="sig-panel" style="
-    position:fixed; bottom:62px; left:16px; width:240px; max-height:0; overflow:hidden;
-    background:transparent; border:1px solid transparent; border-radius:8px;
-    z-index:999; transition:max-height 0.28s ease, border-color 0.28s ease, background 0.28s ease;
-    display:flex; flex-direction:column;
-  ">
-    <div style="padding:10px 12px;border-bottom:1px solid var(--panel-border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-      <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);">Weekly Signals</span>
-      <span class="scenario-badge" id="sig-scenario">—</span>
+  <!-- ══ RIGHT SIDEBAR ══ -->
+  <div class="sidebar right" id="sb-right">
+    <div class="panel" id="p-cl">
+      <div class="panel-header expanded" id="h-cl" onclick="togglePanel('cl')">
+        <div class="panel-header-left"><span class="panel-title">AI Checklist</span></div>
+        <span class="panel-chevron" id="c-cl">▲</span>
+      </div>
+      <div class="panel-body">
+        <div class="panel-inner" style="gap:6px;">
+          <div id="cl-tasks">
+            <div class="cl-loading">
+              <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;animation:bl 1.2s ease-in-out infinite;"></span>
+              <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;animation:bl 1.2s ease-in-out .2s infinite;"></span>
+              <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;animation:bl 1.2s ease-in-out .4s infinite;"></span>
+              &nbsp;Generating…
+            </div>
+          </div>
+          <button class="refresh-btn" id="cl-refresh" onclick="generateChecklist()">↺ Refresh Tasks</button>
+        </div>
+      </div>
     </div>
-    <div style="padding:12px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;">
-      <div class="sig-row">
-        <span class="sig-label">Total meetings</span>
-        <span class="sig-value" id="sig-total-meetings">—</span>
+    <div class="panel" id="p-fc">
+      <div class="panel-header expanded" id="h-fc" onclick="togglePanel('fc')">
+        <div class="panel-header-left">
+          <div id="fc-dot" style="width:6px;height:6px;border-radius:50%;background:#f87171;box-shadow:0 0 6px #f87171;animation:fp 2s ease-in-out infinite;transition:background .3s,box-shadow .3s;flex-shrink:0;"></div>
+          <span class="panel-title">Coach</span>
+        </div>
+        <span class="panel-chevron" id="c-fc">▲</span>
       </div>
-      <div class="sig-row">
-        <span class="sig-label">Meeting time</span>
-        <span class="sig-value" id="sig-meeting-time">—</span>
-        <span class="sig-pct" id="sig-meeting-pct"></span>
-        <div class="bar-track"><div class="bar-fill" id="bar-meeting" style="background:var(--accent);width:0%"></div></div>
-      </div>
-      <div class="sig-row">
-        <span class="sig-label">Back-to-back</span>
-        <span class="sig-value" id="sig-b2b">—</span>
-      </div>
-      <div class="sig-row">
-        <span class="sig-label">Focus blocks (60m+)</span>
-        <span class="sig-value" id="sig-focus-blocks">—</span>
-      </div>
-      <hr class="sig-divider"/>
-      <div class="sig-row">
-        <span class="sig-label">Focus hours</span>
-        <span class="sig-value" id="sig-focus-hrs">—</span>
-        <span class="sig-pct" id="sig-focus-pct"></span>
-        <div class="bar-track"><div class="bar-fill" id="bar-focus" style="width:0%"></div></div>
-      </div>
-      <div class="sig-row">
-        <span class="sig-label">Collab hours</span>
-        <span class="sig-value" id="sig-collab-hrs">—</span>
+      <div class="panel-body">
+        <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;">
+          <div id="fc-msgs" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;"></div>
+          <div style="padding:8px 12px;border-top:1px solid var(--panel-border);display:flex;gap:6px;align-items:flex-end;flex-shrink:0;">
+            <textarea id="fc-input" rows="1" placeholder="Message…" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;padding:8px 10px;resize:none;min-height:34px;max-height:80px;outline:none;transition:border-color .2s;line-height:1.4;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+            <button id="fc-send" style="background:var(--accent);border:none;border-radius:6px;color:#fff;font-family:var(--font-mono);font-size:11px;font-weight:500;padding:0 12px;height:34px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:opacity .2s;">Send</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // ── Signals ──────────────────────────────────────
-    const sigPanel   = document.getElementById('sig-panel');
-    const sigChevron = document.getElementById('sig-chevron');
-    let sigOpen = sessionStorage.getItem('signals_open') !== 'false';
+    // ══ DATA ════════════════════════════════════════════
+    const WEEK_HRS = 40;
+    const _d = new Date();
+    const seed = _d.getFullYear()*365 + _d.getMonth()*31 + _d.getDate();
+    function sr(n){const x=Math.sin(seed*9301+n*49297+233)*73214;return x-Math.floor(x);}
+    const scenario = ['overloaded','balanced','isolated'][Math.floor(sr(0)*3)];
 
-    function sigApplyState(open) {
-      if (open) { sigPanel.classList.add('open'); }
-      else { sigPanel.classList.remove('open'); sigPanel.style.maxHeight = '0'; }
-      sigPanel.style.borderColor = open ? 'var(--panel-border)' : 'transparent';
-      sigPanel.style.background  = open ? 'var(--panel-bg)' : 'transparent';
-      sigPanel.style.boxShadow   = open ? '0 2px 8px rgba(0,0,0,0.10)' : 'none';
-      sigChevron.style.transform = open ? 'rotate(180deg)' : '';
-    }
-    function sigToggle() {
-      sigOpen = !sigOpen;
-      sessionStorage.setItem('signals_open', sigOpen);
-      sigApplyState(sigOpen);
-    }
-    sigApplyState(sigOpen);
+    const templates = {
+      overloaded:{total_meetings_7d:10,total_meeting_mins_7d:1080,back_to_back_count:9,focus_blocks_60min:1,focus_hours_7d:2.5,collab_hours_7d:19.5,meetings:[
+        {id:"1",subject:"Daily Standup",start:{dateTime:"2026-05-01T09:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T09:15:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
+        {id:"2",subject:"Q2 Budget Review",start:{dateTime:"2026-05-01T09:30:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T10:30:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Adrien Mariano"}}]},
+        {id:"3",subject:"Stakeholder Sync",start:{dateTime:"2026-05-01T10:30:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T11:30:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
+        {id:"4",subject:"Sprint Planning",start:{dateTime:"2026-05-01T11:30:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T13:00:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
+        {id:"5",subject:"1:1 with Adrien",start:{dateTime:"2026-05-01T13:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T13:30:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Adrien Mariano"}}]},
+        {id:"6",subject:"Cross-team Dependencies",start:{dateTime:"2026-05-01T13:30:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T14:00:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}}]},
+        {id:"7",subject:"Product Roadmap Review",start:{dateTime:"2026-05-01T14:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T15:00:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
+        {id:"8",subject:"Risk & Issues Triage",start:{dateTime:"2026-05-01T15:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T15:30:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Adrien Mariano"}}]},
+        {id:"9",subject:"All Hands",start:{dateTime:"2026-05-01T15:30:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T16:30:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
+        {id:"10",subject:"End of Day Wrap-up",start:{dateTime:"2026-05-01T16:30:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T17:00:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
+      ]},
+      balanced:{total_meetings_7d:3,total_meeting_mins_7d:480,back_to_back_count:2,focus_blocks_60min:7,focus_hours_7d:12.5,collab_hours_7d:9.0,meetings:[
+        {id:"1",subject:"Daily Standup",start:{dateTime:"2026-05-01T09:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T09:15:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
+        {id:"2",subject:"Sprint Retrospective",start:{dateTime:"2026-05-01T11:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T12:00:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
+        {id:"3",subject:"1:1 with Natan",start:{dateTime:"2026-05-01T14:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T14:30:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}}]},
+      ]},
+      isolated:{total_meetings_7d:2,total_meeting_mins_7d:75,back_to_back_count:0,focus_blocks_60min:14,focus_hours_7d:28.0,collab_hours_7d:1.0,meetings:[
+        {id:"1",subject:"Daily Standup",start:{dateTime:"2026-05-01T09:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T09:15:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
+        {id:"2",subject:"Weekly Check-in",start:{dateTime:"2026-05-01T15:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T16:00:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Adrien Mariano"}}]},
+      ]},
+    };
+    const signals = {...templates[scenario], scenario};
 
-    (function populateSignals() {
-      const WEEK_HRS = 40;
-      const d = new Date();
-      const seed = d.getFullYear() * 365 + d.getMonth() * 31 + d.getDate();
-      function sr(n) { const x = Math.sin(seed * 9301 + n * 49297 + 233) * 73214; return x - Math.floor(x); }
-      const scenarios = ['overloaded', 'balanced', 'isolated'];
-      const scenario  = scenarios[Math.floor(sr(0) * 3)];
-      const ri = (mn, mx, n) => Math.floor(sr(n) * (mx - mn + 1)) + mn;
-      const rf = (mn, mx, n) => Math.round((sr(n) * (mx - mn) + mn) * 10) / 10;
-      const templates = {
-        overloaded: { total_meetings_7d: ri(18,26,1), total_meeting_mins_7d: ri(900,1200,2), back_to_back_count: ri(7,12,3), focus_blocks_60min: ri(0,2,4),   focus_hours_7d: rf(1.5,4.0,5),   collab_hours_7d: rf(16.0,22.0,6) },
-        balanced:   { total_meetings_7d: ri(8,14,1),  total_meeting_mins_7d: ri(400,600,2),  back_to_back_count: ri(1,4,3),  focus_blocks_60min: ri(5,9,4),   focus_hours_7d: rf(10.0,15.0,5), collab_hours_7d: rf(6.0,12.0,6) },
-        isolated:   { total_meetings_7d: ri(1,4,1),   total_meeting_mins_7d: ri(40,120,2),   back_to_back_count: 0,          focus_blocks_60min: ri(10,18,4), focus_hours_7d: rf(22.0,32.0,5), collab_hours_7d: rf(0.5,2.0,6) },
-      };
-      const s = { scenario, ...templates[scenario] };
-      const meetingHrs = Math.round((s.total_meeting_mins_7d / 60) * 10) / 10;
-      const meetingPct = Math.round((meetingHrs / WEEK_HRS) * 100);
-      const focusPct   = Math.round((s.focus_hours_7d / WEEK_HRS) * 100);
-      const badge = document.getElementById('sig-scenario');
-      badge.textContent = scenario; badge.classList.add(scenario);
-      document.getElementById('sig-total-meetings').textContent = s.total_meetings_7d;
-      document.getElementById('sig-meeting-time').textContent   = meetingHrs + ' hrs';
-      document.getElementById('sig-meeting-pct').textContent    = meetingPct + '% of 9–5 week';
-      document.getElementById('bar-meeting').style.width        = Math.min(meetingPct, 100) + '%';
-      document.getElementById('sig-b2b').textContent            = s.back_to_back_count + ' occurrence' + (s.back_to_back_count !== 1 ? 's' : '');
-      document.getElementById('sig-focus-blocks').textContent   = s.focus_blocks_60min;
-      document.getElementById('sig-focus-hrs').textContent      = s.focus_hours_7d + ' hrs';
-      document.getElementById('sig-focus-pct').textContent      = focusPct + '% of 9–5 week';
-      const barFocus = document.getElementById('bar-focus');
-      barFocus.style.width      = Math.min(focusPct, 100) + '%';
-      barFocus.style.background = focusPct < 20 ? '#dc2626' : 'var(--accent)';
-      document.getElementById('sig-collab-hrs').textContent = s.collab_hours_7d + ' hrs';
+    // ══ LAYOUT ENGINE ═══════════════════════════════════
+    const HEADER_H = 38;
+    const GAP      = 8;
+    const PAD_B    = 16;
+    const PAD_T    = 16;
+    const MAX_FRAC = 0.45;
+
+    const expanded = { mp:true, sig:true, cl:true, fc:true };
+    const naturalH = { mp:0, sig:0, cl:0, fc:0 };
+
+    // Measure a panel's natural scrollHeight off-screen
+    function measure(key) {
+      const el = document.getElementById('p-'+key);
+      const prev = { h: el.style.height, b: el.style.bottom, t: el.style.top, tr: el.style.transition };
+      el.style.transition = 'none';
+      el.style.height = 'auto';
+      el.style.bottom = '-9999px';
+      el.style.top = 'unset';
+      naturalH[key] = el.scrollHeight;
+      el.style.height = prev.h;
+      el.style.bottom = prev.b;
+      el.style.top = prev.t;
+      requestAnimationFrame(() => { el.style.transition = prev.tr || ''; });
+    }
+
+    function cappedH(key) {
+      return Math.min(naturalH[key] || HEADER_H, Math.floor(window.innerHeight * MAX_FRAC));
+    }
+
+    function layoutAll() {
+      const vh = window.innerHeight;
+      const usable = vh - PAD_B - PAD_T; // total available space in each sidebar
+
+      // ── Position sidebars to hug the centre box ──
+      // The centre box is centred and max 720px wide, with margins of var(--sw)=220px
+      // Find the actual rendered left edge of the content box
+      const wrapper = document.getElementById('page-wrapper');
+      const wRect   = wrapper.getBoundingClientRect();
+      // Content box inner: max-width 720px, padded by clamp(8px,2vw,16px) each side
+      const innerPad = parseFloat(getComputedStyle(wrapper).paddingLeft) || 16;
+      const contentLeft  = wRect.left + innerPad;
+      const contentRight = wRect.right - innerPad;
+
+      const sbLeft  = document.getElementById('sb-left');
+      const sbRight = document.getElementById('sb-right');
+      const SW = 220; // sidebar width
+
+      // Left sidebar: right edge should touch contentLeft, so left = contentLeft - SW
+      sbLeft.style.left  = Math.max(0, contentLeft - SW) + 'px';
+      sbLeft.style.right = 'unset';
+      sbLeft.style.width = SW + 'px';
+
+      // Right sidebar: left edge should touch contentRight
+      sbRight.style.left  = contentRight + 'px';
+      sbRight.style.right = 'unset';
+      sbRight.style.width = SW + 'px';
+
+      // ── Left sidebar panels: sig (bottom), mp (top) ──
+      const sigH = expanded.sig ? cappedH('sig') : HEADER_H;
+      const sigBot = PAD_B;
+      const mpH_natural = expanded.mp ? cappedH('mp') : HEADER_H;
+      const mpBot = sigBot + sigH + GAP;
+      // Clamp mp so it doesn't overflow top
+      const mpH = expanded.mp ? Math.min(mpH_natural, vh - mpBot - PAD_T) : HEADER_H;
+
+      const pSig = document.getElementById('p-sig');
+      pSig.style.bottom = sigBot + 'px';
+      pSig.style.height = sigH + 'px';
+      pSig.style.top = 'unset';
+
+      const pMp = document.getElementById('p-mp');
+      pMp.style.bottom = mpBot + 'px';
+      pMp.style.height = Math.max(mpH, HEADER_H) + 'px';
+      pMp.style.top = 'unset';
+
+      // ── Right sidebar panels: cl (top), fc (bottom, stretches) ──
+      const clH = expanded.cl ? cappedH('cl') : HEADER_H;
+      // fc gets all remaining space between PAD_B and where cl sits
+      const fcAvail = usable - clH - GAP;
+      const fcH = expanded.fc ? Math.min(Math.max(fcAvail, HEADER_H), Math.floor(vh * MAX_FRAC)) : HEADER_H;
+      const fcBot = PAD_B;
+      const clBot = fcBot + fcH + GAP;
+
+      const pFc = document.getElementById('p-fc');
+      pFc.style.bottom = fcBot + 'px';
+      pFc.style.height = fcH + 'px';
+      pFc.style.top = 'unset';
+
+      const pCl = document.getElementById('p-cl');
+      pCl.style.bottom = clBot + 'px';
+      pCl.style.height = clH + 'px';
+      pCl.style.top = 'unset';
+    }
+
+    function togglePanel(key) {
+      expanded[key] = !expanded[key];
+      document.getElementById('c-'+key).style.transform = expanded[key] ? '' : 'rotate(180deg)';
+      document.getElementById('h-'+key).classList.toggle('expanded', expanded[key]);
+      layoutAll();
+    }
+
+    window.addEventListener('load', () => {
+      ['mp','sig','cl','fc'].forEach(measure);
+      layoutAll();
+    });
+    window.addEventListener('resize', layoutAll);
+
+    // ══ MEETING PREP ════════════════════════════════════
+    function fmt(dt) { return new Date(dt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
+
+    (function() {
+      const el = document.getElementById('mp-content');
+      if (!signals.meetings?.length) { el.innerHTML='<div class="prep-empty">No meetings today</div>'; return; }
+      el.innerHTML = [...signals.meetings]
+        .sort((a,b)=>new Date(a.start.dateTime)-new Date(b.start.dateTime))
+        .map(m=>`<div class="meeting-card">
+          <div class="meeting-card-subject">${m.subject}</div>
+          <div class="meeting-card-time">${fmt(m.start.dateTime)} → ${fmt(m.end.dateTime)}</div>
+          <div class="meeting-card-people">${m.attendees.map(a=>a.emailAddress.name.split(' ')[0]).join(', ')}</div>
+        </div>`).join('');
+      setTimeout(() => { measure('mp'); layoutAll(); }, 50);
     })();
 
-    // ── Chat ─────────────────────────────────────────
-    const HISTORY_KEY = 'coach_history';
-    const messagesEl  = document.getElementById('chat-messages');
-    const inputEl     = document.getElementById('user-input');
-    const sendBtn     = document.getElementById('send-btn');
-    const emptyState  = document.getElementById('empty-state');
-    const statusDot   = document.getElementById('status-dot');
-    let history = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
-    function saveHistory() { sessionStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }
+    // ══ SIGNALS ══════════════════════════════════════════
+    (function(){
+      const s = signals;
+      const mH = Math.round((s.total_meeting_mins_7d/60)*10)/10;
+      const mP = Math.round((mH/WEEK_HRS)*100);
+      const fP = Math.round((s.focus_hours_7d/WEEK_HRS)*100);
+      const b = document.getElementById('sig-scenario'); b.textContent = scenario; b.classList.add(scenario);
+      document.getElementById('sig-total').textContent = s.total_meetings_7d;
+      document.getElementById('sig-time').textContent = mH + ' hrs';
+      document.getElementById('sig-time-pct').textContent = mP + '% of 9–5 week';
+      document.getElementById('bar-meet').style.width = Math.min(mP,100) + '%';
+      document.getElementById('sig-b2b').textContent = s.back_to_back_count + ' occurrence' + (s.back_to_back_count!==1?'s':'');
+      document.getElementById('sig-fb').textContent = s.focus_blocks_60min;
+      document.getElementById('sig-fh').textContent = s.focus_hours_7d + ' hrs';
+      document.getElementById('sig-fh-pct').textContent = fP + '% of 9–5 week';
+      const bf = document.getElementById('bar-focus');
+      bf.style.width = Math.min(fP,100) + '%';
+      bf.style.background = fP < 20 ? '#dc2626' : 'var(--accent)';
+      document.getElementById('sig-ch').textContent = s.collab_hours_7d + ' hrs';
+      setTimeout(() => { measure('sig'); layoutAll(); }, 50);
+    })();
 
-    async function checkConnection() {
+    // ══ CHECKLIST ════════════════════════════════════════
+    // generateChecklist always clears and regenerates from scratch
+    async function generateChecklist() {
+      const btn = document.getElementById('cl-refresh');
+      const box = document.getElementById('cl-tasks');
+      btn.disabled = true;
+
+      // Clear existing tasks immediately
+      box.innerHTML = `<div class="cl-loading">
+        <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;animation:bl 1.2s ease-in-out infinite;"></span>
+        <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;animation:bl 1.2s ease-in-out .2s infinite;"></span>
+        <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;animation:bl 1.2s ease-in-out .4s infinite;"></span>
+        &nbsp;Generating…</div>`;
+
+      const list = signals.meetings.map(m => `- ${m.subject} (${fmt(m.start.dateTime)}–${fmt(m.end.dateTime)})`).join('\n');
+
+      // Add a cache-busting nudge so the model doesn't return the exact same tasks
+      const nudge = `Session: ${Date.now()}`;
+      let tasks;
       try {
         const res = await fetch('/api/chat', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: '__ping__', history: [] }),
-        });
-        if (res.ok) statusDot.classList.add('connected');
-      } catch (_) {}
-    }
-    checkConnection();
-
-    function renderMessage(role, text) {
-      emptyState?.remove();
-      const wrap = document.createElement('div'); wrap.className = `message ${role}`;
-      const label = document.createElement('div'); label.className = 'message-label';
-      label.textContent = role === 'user' ? 'You' : 'Coach';
-      const bubble = document.createElement('div'); bubble.className = 'message-bubble';
-      bubble.textContent = text;
-      wrap.appendChild(label); wrap.appendChild(bubble);
-      messagesEl.appendChild(wrap); messagesEl.scrollTop = messagesEl.scrollHeight;
-      return bubble;
-    }
-    history.forEach(m => renderMessage(m.role === 'user' ? 'user' : 'ai', m.content));
-    inputEl.addEventListener('input', () => {
-      inputEl.style.height = 'auto';
-      inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
-    });
-    inputEl.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-    });
-    sendBtn.addEventListener('click', sendMessage);
-
-    function showTyping() {
-      const wrap = document.createElement('div'); wrap.className = 'message ai'; wrap.id = 'typing';
-      const label = document.createElement('div'); label.className = 'message-label'; label.textContent = 'COACH';
-      const ind = document.createElement('div'); ind.className = 'typing-indicator';
-      ind.innerHTML = '<span></span><span></span><span></span>';
-      wrap.appendChild(label); wrap.appendChild(ind);
-      messagesEl.appendChild(wrap); messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
-    function removeTyping() { document.getElementById('typing')?.remove(); }
-
-    async function sendMessage() {
-      const text = inputEl.value.trim();
-      if (!text) return;
-      inputEl.value = ''; inputEl.style.height = 'auto'; sendBtn.disabled = true;
-      renderMessage('user', text); showTyping();
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, history }),
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            message: `Generate exactly 3 short actionable prep tasks for these meetings today (${nudge}):\n${list}\nReturn ONLY a JSON array of 3 strings, no markdown. Make them specific and varied each time.`,
+            history: []
+          })
         });
         const data = await res.json();
-        removeTyping(); statusDot.classList.add('connected');
-        if (data.error) { renderMessage('ai', `Error: ${data.error}`); }
-        else {
-          renderMessage('ai', data.reply);
-          history.push({ role: 'user', content: text });
-          history.push({ role: 'coach', content: data.reply });
-          saveHistory();
-        }
-      } catch (_) {
-        removeTyping(); statusDot.classList.remove('connected');
-        renderMessage('ai', 'Could not reach the server.');
-      } finally { sendBtn.disabled = false; inputEl.focus(); }
+        tasks = JSON.parse(data.reply.replace(/```json|```/g,'').trim());
+      } catch(_) {
+        const m = signals.meetings[0];
+        tasks = [
+          `Review agenda for ${m ? m.subject : 'first meeting'}`,
+          'Check outstanding actions from last session',
+          'Block 10 mins after meetings for notes'
+        ];
+      }
+
+      // Render fresh tasks (no prior state carried over)
+      box.innerHTML = '';
+      tasks.forEach((t, i) => {
+        const item = document.createElement('div');
+        item.className = 'checklist-item'; item.id = 'ci-'+i;
+        const cb = document.createElement('div'); cb.className = 'checklist-cb';
+        cb.onclick = () => { const done = item.classList.toggle('done'); cb.classList.toggle('checked', done); };
+        const txt = document.createElement('div'); txt.className = 'task-text'; txt.textContent = t;
+        item.appendChild(cb); item.appendChild(txt); box.appendChild(item);
+      });
+
+      btn.disabled = false;
+      setTimeout(() => { measure('cl'); layoutAll(); }, 50);
+    }
+    generateChecklist();
+
+    // ══ COACH CHAT ═══════════════════════════════════════
+    const HKEY = 'coach_history';
+    let fcHist = JSON.parse(sessionStorage.getItem(HKEY) || '[]');
+    const fcMsgs = document.getElementById('fc-msgs');
+    const fcInp  = document.getElementById('fc-input');
+    const fcBtn  = document.getElementById('fc-send');
+    const fcDot  = document.getElementById('fc-dot');
+
+    function fcSave() { sessionStorage.setItem(HKEY, JSON.stringify(fcHist)); }
+    function fcConn(on) {
+      const c = on ? 'var(--accent)' : '#f87171';
+      const g = on ? '0 0 6px var(--accent)' : '0 0 6px #f87171';
+      fcDot.style.background = c; fcDot.style.boxShadow = g;
+    }
+    (async()=>{ try{ const r = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'__ping__',history:[]})}); if(r.ok) fcConn(true); }catch(_){} })();
+
+    function fcRender(role, text) {
+      const w = document.createElement('div'); w.className = 'fc-wrap '+(role==='user'?'user':'ai');
+      const l = document.createElement('div'); l.className = 'fc-label'; l.textContent = role==='user'?'You':'Coach';
+      const m = document.createElement('div'); m.className = 'fc-msg '+(role==='user'?'user':'ai'); m.textContent = text;
+      w.appendChild(l); w.appendChild(m); fcMsgs.appendChild(w); fcMsgs.scrollTop = fcMsgs.scrollHeight;
+    }
+    fcHist.forEach(m => fcRender(m.role==='user'?'user':'ai', m.content));
+
+    fcInp.addEventListener('input', () => { fcInp.style.height='auto'; fcInp.style.height=Math.min(fcInp.scrollHeight,80)+'px'; });
+    fcInp.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();fcSend_();} });
+    fcBtn.addEventListener('click', fcSend_);
+
+    async function fcSend_() {
+      const text = fcInp.value.trim(); if(!text) return;
+      fcInp.value = ''; fcInp.style.height = 'auto'; fcBtn.disabled = true;
+      fcRender('user', text);
+      const tw = document.createElement('div'); tw.className = 'fc-wrap ai'; tw.id = 'fc-typing';
+      tw.innerHTML = '<div class="fc-label">Coach</div><div class="fc-msg ai" style="display:flex;gap:4px;align-items:center;"><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);animation:fb 1.2s ease-in-out infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);animation:fb 1.2s ease-in-out .2s infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);animation:fb 1.2s ease-in-out .4s infinite;display:inline-block;"></span></div>';
+      fcMsgs.appendChild(tw); fcMsgs.scrollTop = fcMsgs.scrollHeight;
+      try {
+        const res  = await fetch('/api/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:fcHist})});
+        const data = await res.json();
+        document.getElementById('fc-typing')?.remove(); fcConn(true);
+        if(data.error){ fcRender('ai','Error: '+data.error); }
+        else { fcRender('ai',data.reply); fcHist.push({role:'user',content:text}); fcHist.push({role:'coach',content:data.reply}); fcSave(); }
+      } catch(_) {
+        document.getElementById('fc-typing')?.remove(); fcConn(false);
+        fcRender('ai','Could not reach the server.');
+      } finally { fcBtn.disabled = false; fcInp.focus(); }
     }
   </script>
 </body>
