@@ -8,88 +8,241 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f0f0f; --border: #2e2e2e; --accent: #00d4aa;
-      --accent-dim: #00d4aa22; --text: #e8e8e8; --text-muted: #666;
-      --surface: #1a1a1a; --radius: 10px;
-      --font-mono: 'IBM Plex Mono', monospace;
+      --text: #1a1a2e;
+      --text-muted: #8888aa;
+      --bg: #979797;
+      --surface: #ffffff;
+      --border: #dcdcec;
+      --accent: #7c3aed;
+      --accent-dim: #7c3aed18;
+      --accent-light: #ede9fe;
+      --user-bg: #ede9fe;
+      --panel-bg: #e4e4ef;
+      --panel-border: #c8c8de;
+      --warn: #dc2626;
+      --warn-bg: #fee2e2;
+      --warn-border: #fca5a5;
+      --radius: 10px;
       --font-ui: 'IBM Plex Sans', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
     }
+
     body {
       background: url('/KCS_Arch_COPYRIGHT.jpg') center/cover no-repeat fixed, var(--bg);
       color: var(--text); font-family: var(--font-ui);
       height: 100dvh; display: flex; flex-direction: column; align-items: center; overflow: hidden;
     }
+
     .page-wrapper {
       width: 100%; max-width: 720px; height: 100dvh;
       display: flex; flex-direction: column;
       padding: 0 clamp(8px, 2vw, 16px);
       gap: clamp(6px, 1.2vh, 12px);
     }
+
     .section-nav { flex-shrink: 0; padding: clamp(10px, 2vh, 20px) 0 0; }
     nav { display: flex; gap: clamp(4px, 0.8vw, 8px); }
     nav a {
-      background: #0f0f0f;
-      flex: 1; text-align: center;
+      background: var(--surface); flex: 1; text-align: center;
       font-family: var(--font-mono); font-size: clamp(9px, 1.2vw, 11px); font-weight: 500;
       letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
       padding: clamp(5px, 0.8vh, 7px) clamp(4px, 1vw, 14px);
       border-radius: 6px; border: 1px solid var(--border);
       color: var(--text-muted); transition: color 0.15s, border-color 0.15s, background 0.15s;
     }
-    nav a:hover  { color: var(--text); border-color: #555; }
-    nav a.active { color: var(--accent); border-color: var(--accent); background: #0f1917; }
+    nav a:hover  { color: var(--text); border-color: #aaa; }
+    nav a.active { color: var(--accent); border-color: var(--accent); background: var(--accent-light); }
 
-    /* PR1: section-content now flex-starts so the Demo Controls card sits
-       at the top while everything below it is still empty/coming-soon. */
     .section-content {
-      flex: 1; min-height: 0; background: var(--surface);
-      border: 1px solid var(--border); border-radius: var(--radius);
-      display: flex; flex-direction: column; align-items: stretch;
-      padding: clamp(16px, 2vh, 24px);
-      overflow-y: auto;
-      color: var(--text-muted); font-family: var(--font-mono);
-      font-size: clamp(11px, 1.5vw, 13px);
+      flex: 1; min-height: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       margin-bottom: clamp(6px, 1.2vh, 16px);
-      gap: clamp(12px, 2vh, 20px);
+      padding: clamp(14px, 2vh, 22px);
+      display: flex; flex-direction: column;
+      gap: clamp(10px, 1.4vh, 16px);
+      overflow-y: auto;
+      overflow-x: hidden;
     }
 
-    /* ── DEMO CONTROLS card (PR1) ────────────────────────────────────────
-       This whole .demo-card block, plus the matching <script> at the bottom,
-       can be deleted in one go for MVP / production. */
-    .demo-card {
-      background: #0f0f0f;
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; flex-shrink: 0;
+    }
+    .page-title {
+      font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text);
+    }
+    .preview-pill {
+      font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.06em; padding: 3px 7px; border-radius: 4px;
+      color: var(--text-muted); background: #f5f5fb; border: 1px solid var(--border);
+    }
+
+    /* ── Settings sections ── */
+    .settings-card {
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      padding: 16px 18px;
+      display: flex; flex-direction: column; gap: 12px;
+      flex-shrink: 0;
     }
-    .demo-card-header {
-      display: flex; align-items: center; justify-content: space-between;
+    .settings-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
     }
-    .demo-card-title {
-      font-family: var(--font-mono); font-size: 10px;
+    .settings-title {
+      font-family: var(--font-mono); font-size: 11px; font-weight: 500;
       letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text);
+    }
+    .settings-desc {
+      font-size: 12px; color: var(--text-muted); line-height: 1.5;
+    }
+
+    /* ── Persona picker ── */
+    .persona-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+    .persona-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 10px;
+      cursor: pointer;
+      display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
+      font-family: var(--font-ui);
+      transition: border-color .15s, background .15s, color .15s;
+      text-align: left;
+    }
+    .persona-btn:hover {
+      border-color: #aaa;
+    }
+    .persona-btn.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    .persona-name {
+      font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+      color: var(--text); letter-spacing: 0.04em;
+    }
+    .persona-btn.selected .persona-name { color: var(--accent); }
+    .persona-blurb {
+      font-size: 11px; color: var(--text-muted); line-height: 1.4;
+    }
+    @media (max-width: 480px) { .persona-grid { grid-template-columns: 1fr; } }
+
+    /* ── Quiet hours ── */
+    .quiet-row {
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    }
+    .quiet-label {
+      font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .time-input {
+      font-family: var(--font-mono); font-size: 13px;
+      color: var(--text);
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: var(--surface);
+      cursor: pointer;
+    }
+    .time-input:focus { outline: none; border-color: var(--accent); }
+
+    /* ── Snooze ── */
+    .snooze-toggle {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .toggle-switch {
+      position: relative;
+      width: 38px; height: 22px;
+      background: var(--border);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: background .2s;
+      flex-shrink: 0;
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 16px; height: 16px;
+      background: white;
+      border-radius: 50%;
+      top: 3px; left: 3px;
+      transition: left .2s;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+    .toggle-switch.on {
+      background: var(--accent);
+    }
+    .toggle-switch.on::after {
+      left: 19px;
+    }
+    .toggle-label {
+      font-size: 13px; color: var(--text);
+    }
+    .snooze-durations {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .duration-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 6px 10px;
+      font-family: var(--font-mono); font-size: 10px;
       color: var(--text-muted);
+      letter-spacing: 0.04em; text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color .15s, background .15s, color .15s;
     }
-    .demo-card-body {
-      font-family: var(--font-ui); font-size: 13px;
-      color: var(--text); line-height: 1.5;
+    .duration-btn:hover { border-color: #aaa; color: var(--text); }
+    .duration-btn.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: var(--accent);
     }
-    .demo-card-meta {
-      font-family: var(--font-mono); font-size: 11px;
+    .duration-btn:disabled {
+      opacity: 0.4; cursor: not-allowed;
+    }
+
+    /* ── Save status ── */
+    .save-toast {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0; transition: opacity .25s;
+    }
+    .save-toast.show { opacity: 1; }
+
+    /* ── Demo Controls (PR1, kept) ── */
+    .demo-card {
+      background: var(--accent-light);
+      border: 1px dashed #c4b5fd;
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 10px;
+      flex-shrink: 0;
+    }
+    .demo-meta {
+      font-family: var(--font-mono); font-size: 10px;
       color: var(--text-muted);
-    }
-    .demo-card-meta strong {
-      color: var(--accent); font-weight: 500; text-transform: uppercase;
       letter-spacing: 0.04em;
+    }
+    .demo-meta strong {
+      color: var(--accent); font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em;
     }
     .demo-reroll-btn {
       align-self: flex-start;
       background: var(--accent);
       border: none; border-radius: 6px;
-      color: #0f0f0f;
+      color: #ffffff;
       font-family: var(--font-mono); font-size: 11px; font-weight: 500;
       letter-spacing: 0.06em; text-transform: uppercase;
       padding: 8px 14px; cursor: pointer;
@@ -98,14 +251,25 @@
     .demo-reroll-btn:hover { opacity: 0.85; }
     .demo-reroll-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-    .placeholder {
-      flex: 1;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text-muted); font-family: var(--font-mono);
-      font-size: clamp(11px, 1.5vw, 13px);
-    }
+    /* ── Floating chat ── */
+    @keyframes fc-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    @keyframes fc-blink { 0%,100%{opacity:0.2;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
+    .fc-wrap { display:flex; flex-direction:column; gap:2px; }
+    .fc-wrap.user { align-self:flex-end; align-items:flex-end; }
+    .fc-wrap.ai   { align-self:flex-start; align-items:flex-start; }
+    .fc-label { font-family:var(--font-mono); font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); padding:0 2px; }
+    .fc-msg { font-size:12px; line-height:1.5; padding:7px 10px; border-radius:6px; border:1px solid var(--border); max-width:90%; }
+    .fc-msg.user { background:var(--user-bg); border-color:#c4b5fd; color:var(--text); }
+    .fc-msg.ai   { background:var(--surface); color:var(--text); }
+    #fc-input:focus { border-color:var(--accent) !important; }
+    #fc-send:hover  { opacity:0.85; }
+    #fc-send:disabled { opacity:0.35; cursor:not-allowed; }
+    #fc-panel.open { max-height: calc(50dvh - 78px) !important; }
 
-    @media (max-width: 480px) { nav a { font-size: 9px; padding: 5px 4px; } }
+    @media (max-width: 480px) {
+      nav a { font-size: 9px; padding: 5px 4px; }
+      #fc-bar, #fc-panel { width:calc(100% - 32px); right:16px; }
+    }
   </style>
 
   <!-- ══ Shared scenario module (PR1) ══ -->
@@ -116,101 +280,248 @@
     <div class="section-nav">
       <nav>
         <a href="/index.html">Dashboard</a>
-        <a href="/deep_work_page_2.html" >Deep Work</a>
-        <a href="/network_page_3.html" >Network</a>
-        <a href="/career_path_page_4.html" >Career Path</a>
+        <a href="/deep_work_page_2.html">Deep Work</a>
+        <a href="/network_page_3.html">Network</a>
+        <a href="/career_path_page_4.html">Career Path</a>
         <a href="/settings_page_5.html" class="active">Settings</a>
       </nav>
     </div>
 
     <div class="section-content">
-      <!-- ══ DEMO CONTROLS — PR1 (delete this whole block for MVP) ══ -->
+
+      <div class="page-header">
+        <span class="page-title">Settings</span>
+        <span class="preview-pill">Local preview · not yet saved server-side</span>
+      </div>
+
+      <!-- ── Coaching Persona ── -->
+      <div class="settings-card">
+        <div class="settings-header">
+          <span class="settings-title">Coaching Persona</span>
+          <span class="save-toast" id="persona-toast">✓ Saved</span>
+        </div>
+        <div class="settings-desc">
+          Choose how you'd like the Coach to talk to you. You can change this any time.
+        </div>
+        <div class="persona-grid" id="persona-grid">
+          <button class="persona-btn" data-persona="balanced">
+            <span class="persona-name">Balanced</span>
+            <span class="persona-blurb">Warm and supportive, with gentle suggestions.</span>
+          </button>
+          <button class="persona-btn" data-persona="direct">
+            <span class="persona-name">Direct</span>
+            <span class="persona-blurb">Straight to the point. Less hedging, more clarity.</span>
+          </button>
+          <button class="persona-btn" data-persona="reflective">
+            <span class="persona-name">Reflective</span>
+            <span class="persona-blurb">Asks questions back. Helps you think it through.</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Quiet Hours ── -->
+      <div class="settings-card">
+        <div class="settings-header">
+          <span class="settings-title">Quiet Hours</span>
+          <span class="save-toast" id="quiet-toast">✓ Saved</span>
+        </div>
+        <div class="settings-desc">
+          The Coach won't proactively send briefings or nudges between these times.
+        </div>
+        <div class="quiet-row">
+          <span class="quiet-label">From</span>
+          <input type="time" class="time-input" id="quiet-from" value="18:00">
+          <span class="quiet-label">To</span>
+          <input type="time" class="time-input" id="quiet-to" value="09:00">
+        </div>
+      </div>
+
+      <!-- ── Snooze ── -->
+      <div class="settings-card">
+        <div class="settings-header">
+          <span class="settings-title">Snooze</span>
+          <span class="save-toast" id="snooze-toast">✓ Saved</span>
+        </div>
+        <div class="settings-desc">
+          Pause all proactive coaching. The Coach is still available if you open the chat.
+        </div>
+        <div class="snooze-toggle">
+          <div class="toggle-switch" id="snooze-toggle"></div>
+          <span class="toggle-label" id="snooze-label">Snooze is off</span>
+        </div>
+        <div class="snooze-durations" id="snooze-durations">
+          <button class="duration-btn" data-duration="4">4 hours</button>
+          <button class="duration-btn" data-duration="24">24 hours</button>
+          <button class="duration-btn" data-duration="72">Until Monday</button>
+        </div>
+      </div>
+
+      <!-- ══ DEMO CONTROLS — PR1 + PR2 (delete this whole block for MVP) ══ -->
       <div class="demo-card" id="demo-controls">
-        <div class="demo-card-header">
-          <span class="demo-card-title">Demo Controls</span>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <span class="settings-title" style="color:var(--accent);">⚙ Demo Controls</span>
+          <span class="demo-meta">For exploration only</span>
         </div>
-        <div class="demo-card-body">
+        <div class="settings-desc">
           You're currently exploring the
-          <span class="demo-card-meta"><strong id="demo-current">—</strong></span>
-          working pattern. Reroll to see the coach respond to a different week.
-        </div>
-        <div class="demo-card-meta">
-          Reroll picks one of <em>overloaded</em>, <em>balanced</em>, or
-          <em>isolated</em> &mdash; never the one you're already on.
-          The choice persists until you close this tab.
+          <span class="demo-meta"><strong id="demo-current">—</strong></span>
+          working pattern. Reroll picks a different one — never the same scenario twice in a row.
+          Choice persists until you close this tab.
         </div>
         <button class="demo-reroll-btn" id="demo-reroll" type="button">↻ Reroll Scenario</button>
       </div>
       <!-- ══ END DEMO CONTROLS ══ -->
 
-      <div class="placeholder">Settings — coming soon</div>
     </div>
   </div>
 
-  <!-- Floating chat -->
+  <!-- ══ Floating Coach Chat ══ -->
   <div id="fc-bar" style="
-    position:fixed; bottom:16px; right:16px;
-    width:320px; height:38px;
-    background:#1a1a1a; border:1px solid #2e2e2e; border-radius:8px;
+    position:fixed; bottom:16px; right:16px; width:240px; height:38px;
+    background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:8px;
     display:flex; align-items:center; gap:8px; padding:0 12px;
     cursor:pointer; z-index:1000; user-select:none;
+    box-shadow:0 2px 8px rgba(0,0,0,0.10);
   " onclick="fcToggle()">
-    <div id="fc-status-dot" style="width:6px;height:6px;border-radius:50%;background:#e74c3c;box-shadow:0 0 6px #e74c3c;animation:fc-pulse 2s ease-in-out infinite;flex-shrink:0;transition:background 0.3s,box-shadow 0.3s;"></div>
-    <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#666;">Coach</span>
-    <span id="fc-chevron" style="margin-left:auto;font-size:10px;color:#666;transition:transform 0.2s;">▲</span>
+    <div id="fc-status-dot" style="width:6px;height:6px;border-radius:50%;background:#f87171;box-shadow:0 0 6px #f87171;animation:fc-pulse 2s ease-in-out infinite;flex-shrink:0;transition:background 0.3s,box-shadow 0.3s;"></div>
+    <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);">Coach</span>
+    <span id="fc-chevron" style="margin-left:auto;font-size:10px;color:var(--text-muted);transition:transform 0.2s;">▲</span>
   </div>
 
   <div id="fc-panel" style="
-    position:fixed; bottom:62px; right:16px;
-    width:320px; max-height:0; overflow:hidden;
+    position:fixed; bottom:62px; right:16px; width:240px; max-height:0; overflow:hidden;
     background:transparent; border:1px solid transparent; border-radius:8px;
     z-index:999; transition:max-height 0.28s ease, border-color 0.28s ease, background 0.28s ease;
     display:flex; flex-direction:column;
   ">
-    <div style="padding:10px 12px;border-bottom:1px solid #2e2e2e;display:flex;align-items:center;gap:8px;flex-shrink:0;">
-      <div id="fc-panel-dot" style="width:6px;height:6px;border-radius:50%;background:#e74c3c;box-shadow:0 0 6px #e74c3c;animation:fc-pulse 2s ease-in-out infinite;transition:background 0.3s,box-shadow 0.3s;"></div>
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#666;">Coaching Agent</span>
+    <div style="padding:10px 12px;border-bottom:1px solid var(--panel-border);display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <div id="fc-panel-dot" style="width:6px;height:6px;border-radius:50%;background:#f87171;box-shadow:0 0 6px #f87171;animation:fc-pulse 2s ease-in-out infinite;transition:background 0.3s,box-shadow 0.3s;"></div>
+      <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);">Coaching Agent</span>
     </div>
-    <div id="fc-messages" style="
-      overflow-y:auto; padding:10px 12px;
-      display:flex; flex-direction:column; gap:8px;
-      flex:1;
-      scrollbar-width:thin; scrollbar-color:#2e2e2e transparent;
-    "></div>
-    <div style="padding:8px 12px;border-top:1px solid #2e2e2e;display:flex;gap:6px;align-items:flex-end;flex-shrink:0;">
-      <textarea id="fc-input" rows="1" placeholder="Message…" style="
-        flex:1;background:#0f0f0f;border:1px solid #2e2e2e;border-radius:6px;
-        color:#e8e8e8;font-family:'IBM Plex Sans',sans-serif;font-size:12px;
-        padding:8px 10px;resize:none;min-height:34px;max-height:80px;
-        outline:none;transition:border-color 0.2s;line-height:1.4;
-      "></textarea>
-      <button id="fc-send" style="
-        background:#00d4aa;border:none;border-radius:6px;color:#0f0f0f;
-        font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;
-        padding:0 12px;height:34px;cursor:pointer;white-space:nowrap;flex-shrink:0;
-        transition:opacity 0.2s;
-      ">Send</button>
+    <div id="fc-messages" style="overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;flex:1;scrollbar-width:thin;scrollbar-color:var(--border) transparent;"></div>
+    <div style="padding:8px 12px;border-top:1px solid var(--panel-border);display:flex;gap:6px;align-items:flex-end;flex-shrink:0;">
+      <textarea id="fc-input" rows="1" placeholder="Message…" style="flex:1;background:var(--panel-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;padding:8px 10px;resize:none;min-height:34px;max-height:80px;outline:none;transition:border-color 0.2s;line-height:1.4;"></textarea>
+      <button id="fc-send" style="background:var(--accent);border:none;border-radius:6px;color:#fff;font-family:var(--font-mono);font-size:11px;font-weight:500;padding:0 12px;height:34px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:opacity 0.2s;">Send</button>
     </div>
   </div>
 
-  <style>
-    @keyframes fc-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-    @keyframes fc-blink { 0%,100%{opacity:0.2;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
-    .fc-wrap { display:flex;flex-direction:column;gap:2px; }
-    .fc-wrap.user { align-self:flex-end;align-items:flex-end; }
-    .fc-wrap.ai   { align-self:flex-start;align-items:flex-start; }
-    .fc-label { font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:#666;padding:0 2px; }
-    .fc-msg { font-size:12px;line-height:1.5;padding:7px 10px;border-radius:6px;border:1px solid #2e2e2e;max-width:90%; }
-    .fc-msg.user { background:#1e2a27;border-color:#00d4aa;color:#e8e8e8; }
-    .fc-msg.ai   { background:#0f0f0f;color:#e8e8e8; }
-    #fc-input:focus { border-color:#00d4aa !important; }
-    #fc-send:hover  { opacity:0.85; }
-    #fc-send:disabled { opacity:0.35;cursor:not-allowed; }
-    #fc-panel.open { max-height: calc(50dvh - 78px) !important; }
-    @media (max-width:480px) {
-      #fc-bar, #fc-panel { width:calc(100% - 32px); right:16px; }
+  <!-- ══ Settings UI controllers ══ -->
+  <script>
+  // ════════════════════════════════════════════════════════════════════════════
+  // Settings page — persona / quiet hours / snooze
+  // All values persist in sessionStorage. NOT YET wired into the API in PR2 —
+  // that's a deliberate MVP-stage task once Supabase/Cosmos persistence exists.
+  // ════════════════════════════════════════════════════════════════════════════
+
+  const PERSONA_KEY     = 'coach_persona';
+  const QUIET_FROM_KEY  = 'coach_quiet_from';
+  const QUIET_TO_KEY    = 'coach_quiet_to';
+  const SNOOZE_KEY      = 'coach_snooze_until';   // ISO timestamp or null
+
+  // Helper: flash a "✓ Saved" toast next to a section title
+  function flashToast(id) {
+    const t = document.getElementById(id);
+    if (!t) return;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1400);
+  }
+
+  // ── Persona ──────────────────────────────────────────────────────────────
+  function initPersona() {
+    const saved = sessionStorage.getItem(PERSONA_KEY) || 'balanced';
+    document.querySelectorAll('.persona-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.persona === saved);
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        sessionStorage.setItem(PERSONA_KEY, btn.dataset.persona);
+        flashToast('persona-toast');
+      });
+    });
+  }
+
+  // ── Quiet hours ──────────────────────────────────────────────────────────
+  function initQuiet() {
+    const fromEl = document.getElementById('quiet-from');
+    const toEl   = document.getElementById('quiet-to');
+    fromEl.value = sessionStorage.getItem(QUIET_FROM_KEY) || '18:00';
+    toEl.value   = sessionStorage.getItem(QUIET_TO_KEY)   || '09:00';
+
+    fromEl.addEventListener('change', () => {
+      sessionStorage.setItem(QUIET_FROM_KEY, fromEl.value);
+      flashToast('quiet-toast');
+    });
+    toEl.addEventListener('change', () => {
+      sessionStorage.setItem(QUIET_TO_KEY, toEl.value);
+      flashToast('quiet-toast');
+    });
+  }
+
+  // ── Snooze ───────────────────────────────────────────────────────────────
+  function initSnooze() {
+    const toggle    = document.getElementById('snooze-toggle');
+    const label     = document.getElementById('snooze-label');
+    const durations = document.querySelectorAll('.duration-btn');
+
+    function readState() {
+      const ts = sessionStorage.getItem(SNOOZE_KEY);
+      if (!ts) return { on: false, until: null };
+      const until = new Date(ts);
+      if (isNaN(until.getTime()) || until <= new Date()) {
+        sessionStorage.removeItem(SNOOZE_KEY);
+        return { on: false, until: null };
+      }
+      return { on: true, until };
     }
-  </style>
+
+    function paint() {
+      const state = readState();
+      toggle.classList.toggle('on', state.on);
+      durations.forEach(b => b.disabled = !state.on);
+      // Highlight no duration by default; selection only set when user clicks one
+      if (!state.on) {
+        label.textContent = 'Snooze is off';
+        durations.forEach(b => b.classList.remove('selected'));
+      } else {
+        const mins = Math.round((state.until - new Date()) / 60000);
+        const hrs  = mins >= 60 ? Math.round(mins / 60) + 'h' : mins + 'm';
+        label.textContent = `Snoozed for ${hrs}`;
+      }
+    }
+
+    toggle.addEventListener('click', () => {
+      const state = readState();
+      if (state.on) {
+        sessionStorage.removeItem(SNOOZE_KEY);
+      } else {
+        // Default 4 hours when toggled on
+        const until = new Date(Date.now() + 4 * 3600 * 1000);
+        sessionStorage.setItem(SNOOZE_KEY, until.toISOString());
+        durations.forEach(b => b.classList.toggle('selected', b.dataset.duration === '4'));
+      }
+      paint();
+      flashToast('snooze-toast');
+    });
+
+    durations.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        const hours = parseInt(btn.dataset.duration, 10);
+        const until = new Date(Date.now() + hours * 3600 * 1000);
+        sessionStorage.setItem(SNOOZE_KEY, until.toISOString());
+        durations.forEach(b => b.classList.toggle('selected', b === btn));
+        paint();
+        flashToast('snooze-toast');
+      });
+    });
+
+    paint();
+  }
+
+  initPersona();
+  initQuiet();
+  initSnooze();
+  </script>
 
   <!-- ══ DEMO CONTROLS script — PR1 (delete this whole block for MVP) ══ -->
   <script>
@@ -225,9 +536,8 @@
 
       btn.addEventListener('click', () => {
         btn.disabled = true;
-        const next = window.rerollScenario();   // fires 'scenariochanged' globally
+        const next = window.rerollScenario();
         refreshLabel();
-        // tiny visual confirmation that something happened
         btn.textContent = '↻ Now: ' + next;
         setTimeout(() => {
           btn.textContent = '↻ Reroll Scenario';
@@ -235,137 +545,119 @@
         }, 1200);
       });
 
-      // If another tab/listener somehow rerolls, keep our label in sync
       window.addEventListener('scenariochanged', refreshLabel);
     })();
   </script>
   <!-- ══ END DEMO CONTROLS script ══ -->
 
+  <!-- ══ Floating Coach Chat ══ -->
   <script>
-    const HISTORY_KEY = 'coach_history';
-    let fcHistory = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
+  const HISTORY_KEY = 'coach_history';
+  let fcHistory = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
+  const fcPanel     = document.getElementById('fc-panel');
+  const fcMessages  = document.getElementById('fc-messages');
+  const fcInput     = document.getElementById('fc-input');
+  const fcSend      = document.getElementById('fc-send');
+  const fcChevron   = document.getElementById('fc-chevron');
+  const fcStatusDot = document.getElementById('fc-status-dot');
+  const fcPanelDot  = document.getElementById('fc-panel-dot');
 
-    const fcPanel     = document.getElementById('fc-panel');
-    const fcMessages  = document.getElementById('fc-messages');
-    const fcInput     = document.getElementById('fc-input');
-    const fcSend      = document.getElementById('fc-send');
-    const fcChevron   = document.getElementById('fc-chevron');
-    const fcStatusDot = document.getElementById('fc-status-dot');
-    const fcPanelDot  = document.getElementById('fc-panel-dot');
+  function fcSaveHistory() { sessionStorage.setItem(HISTORY_KEY, JSON.stringify(fcHistory)); }
+  function fcSetConnected(on) {
+    const col  = on ? 'var(--accent)' : '#f87171';
+    const glow = on ? '0 0 6px var(--accent)' : '0 0 6px #f87171';
+    fcStatusDot.style.background = col; fcStatusDot.style.boxShadow = glow;
+    fcPanelDot.style.background  = col; fcPanelDot.style.boxShadow  = glow;
+  }
+  async function fcCheckConnection() {
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: '__ping__', history: [] }),
+      });
+      if (res.ok) fcSetConnected(true);
+    } catch (err) { fcSetConnected(false); }
+  }
+  fcCheckConnection();
 
-    function fcSaveHistory() { sessionStorage.setItem(HISTORY_KEY, JSON.stringify(fcHistory)); }
-
-    function fcSetConnected(on) {
-      const col = on ? '#00d4aa' : '#e74c3c';
-      const glow = on ? '0 0 6px #00d4aa' : '0 0 6px #e74c3c';
-      fcStatusDot.style.background = col;
-      fcStatusDot.style.boxShadow  = glow;
-      fcPanelDot.style.background  = col;
-      fcPanelDot.style.boxShadow   = glow;
-    }
-
-    async function fcCheckConnection() {
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: '__ping__', history: [] }),
-        });
-        if (res.ok) fcSetConnected(true);
-      } catch (err) { fcSetConnected(false); }
-    }
-    fcCheckConnection();
-
-    function fcApplyState(open) {
-      if (open) {
-        fcPanel.classList.add('open');
-      } else {
-        fcPanel.classList.remove('open');
-        fcPanel.style.maxHeight = '0';
-      }
-      fcPanel.style.borderColor = open ? '#2e2e2e' : 'transparent';
-      fcPanel.style.background  = open ? '#1a1a1a' : 'transparent';
-      fcChevron.style.transform = open ? 'rotate(180deg)' : '';
-    }
-
-    function fcRenderMessage(role, text) {
-      const wrap  = document.createElement('div');
-      wrap.className = 'fc-wrap ' + (role === 'user' ? 'user' : 'ai');
-      const label = document.createElement('div');
-      label.className = 'fc-label';
-      label.textContent = role === 'user' ? 'You' : 'Coach';
-      const msg   = document.createElement('div');
-      msg.className = 'fc-msg ' + (role === 'user' ? 'user' : 'ai');
-      msg.textContent = text;
-      wrap.appendChild(label); wrap.appendChild(msg);
-      fcMessages.appendChild(wrap);
-      fcMessages.scrollTop = fcMessages.scrollHeight;
-    }
-
-    function fcToggle() {
-      fcHistory = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
-      const fcOpen = sessionStorage.getItem('coach_open') !== 'false';
-      const newOpen = !fcOpen;
-      sessionStorage.setItem('coach_open', newOpen);
-      fcApplyState(newOpen);
-      if (newOpen) {
-        fcMessages.innerHTML = '';
-        fcHistory.forEach(m => fcRenderMessage(m.role === 'user' ? 'user' : 'ai', m.content));
-        setTimeout(() => fcInput.focus(), 300);
-      }
-    }
-
-    fcInput.addEventListener('input', () => {
-      fcInput.style.height = 'auto';
-      fcInput.style.height = Math.min(fcInput.scrollHeight, 80) + 'px';
-    });
-    fcInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); fcSendMessage(); }
-    });
-    fcSend.addEventListener('click', fcSendMessage);
-
-    async function fcSendMessage() {
-      const text = fcInput.value.trim();
-      if (!text) return;
-      fcInput.value = ''; fcInput.style.height = 'auto'; fcSend.disabled = true;
-      fcRenderMessage('user', text);
-      const typingWrap = document.createElement('div');
-      typingWrap.className = 'fc-wrap ai'; typingWrap.id = 'fc-typing';
-      typingWrap.innerHTML = '<div class="fc-label">Coach</div><div class="fc-msg ai" style="display:flex;gap:4px;align-items:center;"><span style="width:5px;height:5px;border-radius:50%;background:#00d4aa;animation:fc-blink 1.2s ease-in-out infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:#00d4aa;animation:fc-blink 1.2s ease-in-out 0.2s infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:#00d4aa;animation:fc-blink 1.2s ease-in-out 0.4s infinite;display:inline-block;"></span></div>';
-      fcMessages.appendChild(typingWrap);
-      fcMessages.scrollTop = fcMessages.scrollHeight;
-      try {
-        const res  = await fetch('/api/chat', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: text,
-            history: fcHistory,
-            scenario: window.currentScenario,    // PR1: tell the API which scenario we're on
-          }),
-        });
-        const data = await res.json();
-        document.getElementById('fc-typing')?.remove();
-        fcSetConnected(true);
-        if (data.error) { fcRenderMessage('ai', 'Error: ' + data.error); }
-        else {
-          fcRenderMessage('ai', data.reply);
-          fcHistory.push({ role: 'user',  content: text });
-          fcHistory.push({ role: 'coach', content: data.reply });
-          fcSaveHistory();
-        }
-      } catch (err) {
-        document.getElementById('fc-typing')?.remove();
-        fcSetConnected(false);
-        fcRenderMessage('ai', 'Could not reach the server.');
-      } finally {
-        fcSend.disabled = false; fcInput.focus();
-      }
-    }
-
-    const initOpen = sessionStorage.getItem('coach_open') !== 'false';
-    fcApplyState(initOpen);
-    if (initOpen) {
+  function fcApplyState(open) {
+    if (open) { fcPanel.classList.add('open'); }
+    else { fcPanel.classList.remove('open'); fcPanel.style.maxHeight = '0'; }
+    fcPanel.style.borderColor = open ? 'var(--panel-border)' : 'transparent';
+    fcPanel.style.background  = open ? 'var(--panel-bg)' : 'transparent';
+    fcPanel.style.boxShadow   = open ? '0 2px 8px rgba(0,0,0,0.10)' : 'none';
+    fcChevron.style.transform = open ? 'rotate(180deg)' : '';
+  }
+  function fcRenderMessage(role, text) {
+    const wrap  = document.createElement('div'); wrap.className = 'fc-wrap ' + (role === 'user' ? 'user' : 'ai');
+    const label = document.createElement('div'); label.className = 'fc-label';
+    label.textContent = role === 'user' ? 'You' : 'Coach';
+    const msg   = document.createElement('div'); msg.className = 'fc-msg ' + (role === 'user' ? 'user' : 'ai');
+    msg.textContent = text;
+    wrap.appendChild(label); wrap.appendChild(msg);
+    fcMessages.appendChild(wrap); fcMessages.scrollTop = fcMessages.scrollHeight;
+  }
+  function fcToggle() {
+    fcHistory = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
+    const fcOpen = sessionStorage.getItem('coach_open') !== 'false';
+    const newOpen = !fcOpen;
+    sessionStorage.setItem('coach_open', newOpen);
+    fcApplyState(newOpen);
+    if (newOpen) {
+      fcMessages.innerHTML = '';
       fcHistory.forEach(m => fcRenderMessage(m.role === 'user' ? 'user' : 'ai', m.content));
+      setTimeout(() => fcInput.focus(), 300);
     }
+  }
+  fcInput.addEventListener('input', () => {
+    fcInput.style.height = 'auto';
+    fcInput.style.height = Math.min(fcInput.scrollHeight, 80) + 'px';
+  });
+  fcInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); fcSendMessage(); }
+  });
+  fcSend.addEventListener('click', fcSendMessage);
+
+  async function fcSendMessage() {
+    const text = fcInput.value.trim();
+    if (!text) return;
+    fcInput.value = ''; fcInput.style.height = 'auto'; fcSend.disabled = true;
+    fcRenderMessage('user', text);
+    const typingWrap = document.createElement('div');
+    typingWrap.className = 'fc-wrap ai'; typingWrap.id = 'fc-typing';
+    typingWrap.innerHTML = '<div class="fc-label">Coach</div><div class="fc-msg ai" style="display:flex;gap:4px;align-items:center;"><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);animation:fc-blink 1.2s ease-in-out infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);animation:fc-blink 1.2s ease-in-out 0.2s infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);animation:fc-blink 1.2s ease-in-out 0.4s infinite;display:inline-block;"></span></div>';
+    fcMessages.appendChild(typingWrap); fcMessages.scrollTop = fcMessages.scrollHeight;
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          history: fcHistory,
+          scenario: window.currentScenario,
+        }),
+      });
+      const data = await res.json();
+      document.getElementById('fc-typing')?.remove();
+      fcSetConnected(true);
+      if (data.error) { fcRenderMessage('ai', 'Error: ' + data.error); }
+      else {
+        fcRenderMessage('ai', data.reply);
+        fcHistory.push({ role: 'user',  content: text });
+        fcHistory.push({ role: 'coach', content: data.reply });
+        fcSaveHistory();
+      }
+    } catch (err) {
+      document.getElementById('fc-typing')?.remove();
+      fcSetConnected(false);
+      fcRenderMessage('ai', 'Could not reach the server.');
+    } finally { fcSend.disabled = false; fcInput.focus(); }
+  }
+
+  const initOpen = sessionStorage.getItem('coach_open') !== 'false';
+  fcApplyState(initOpen);
+  if (initOpen) {
+    fcHistory.forEach(m => fcRenderMessage(m.role === 'user' ? 'user' : 'ai', m.content));
+  }
   </script>
 </body>
 </html>
