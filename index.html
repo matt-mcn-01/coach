@@ -136,6 +136,9 @@
       .page-wrapper { margin:0; }
     }
   </style>
+
+  <!-- ══ Shared scenario module (PR1) ══ -->
+  <script src="/scenario.js"></script>
 </head>
 <body>
 
@@ -237,36 +240,9 @@
 
   <script>
     // ══ DATA ════════════════════════════════════════════
+    // PR1 change: scenario + signals come from window.signals (set by /scenario.js).
+    // The previous date-seeded picker and inline templates were removed.
     const WEEK_HRS = 40;
-    const _d = new Date();
-    const seed = _d.getFullYear()*365 + _d.getMonth()*31 + _d.getDate();
-    function sr(n){const x=Math.sin(seed*9301+n*49297+233)*73214;return x-Math.floor(x);}
-    const scenario = ['overloaded','balanced','isolated'][Math.floor(sr(0)*3)];
-
-    const templates = {
-      overloaded:{total_meetings_7d:10,total_meeting_mins_7d:1080,back_to_back_count:9,focus_blocks_60min:1,focus_hours_7d:2.5,collab_hours_7d:19.5,meetings:[
-        {id:"1",subject:"Daily Standup",start:{dateTime:"2026-05-01T09:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T09:15:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
-        {id:"2",subject:"Q2 Budget Review",start:{dateTime:"2026-05-01T09:30:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T10:30:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Adrien Mariano"}}]},
-        {id:"3",subject:"Stakeholder Sync",start:{dateTime:"2026-05-01T10:30:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T11:30:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
-        {id:"4",subject:"Sprint Planning",start:{dateTime:"2026-05-01T11:30:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T13:00:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
-        {id:"5",subject:"1:1 with Adrien",start:{dateTime:"2026-05-01T13:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T13:30:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Adrien Mariano"}}]},
-        {id:"6",subject:"Cross-team Dependencies",start:{dateTime:"2026-05-01T13:30:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T14:00:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}}]},
-        {id:"7",subject:"Product Roadmap Review",start:{dateTime:"2026-05-01T14:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T15:00:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
-        {id:"8",subject:"Risk & Issues Triage",start:{dateTime:"2026-05-01T15:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T15:30:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Adrien Mariano"}}]},
-        {id:"9",subject:"All Hands",start:{dateTime:"2026-05-01T15:30:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T16:30:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
-        {id:"10",subject:"End of Day Wrap-up",start:{dateTime:"2026-05-01T16:30:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T17:00:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
-      ]},
-      balanced:{total_meetings_7d:3,total_meeting_mins_7d:480,back_to_back_count:2,focus_blocks_60min:7,focus_hours_7d:12.5,collab_hours_7d:9.0,meetings:[
-        {id:"1",subject:"Daily Standup",start:{dateTime:"2026-05-01T09:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T09:15:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
-        {id:"2",subject:"Sprint Retrospective",start:{dateTime:"2026-05-01T11:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T12:00:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
-        {id:"3",subject:"1:1 with Natan",start:{dateTime:"2026-05-01T14:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T14:30:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}}]},
-      ]},
-      isolated:{total_meetings_7d:2,total_meeting_mins_7d:75,back_to_back_count:0,focus_blocks_60min:14,focus_hours_7d:28.0,collab_hours_7d:1.0,meetings:[
-        {id:"1",subject:"Daily Standup",start:{dateTime:"2026-05-01T09:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T09:15:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Natan Kolodziej"}},{emailAddress:{name:"Adrien Mariano"}}]},
-        {id:"2",subject:"Weekly Check-in",start:{dateTime:"2026-05-01T15:00:00.0000000",timeZone:"UTC"},end:{dateTime:"2026-05-01T16:00:00.0000000",timeZone:"UTC"},attendees:[{emailAddress:{name:"Monty Austin-Ajaero"}},{emailAddress:{name:"Adrien Mariano"}}]},
-      ]},
-    };
-    const signals = {...templates[scenario], scenario};
 
     // ══ LAYOUT ENGINE ═══════════════════════════════════
     const HEADER_H = 38;
@@ -278,7 +254,6 @@
     const expanded = { mp:true, sig:true, cl:true, fc:true };
     const naturalH = { mp:0, sig:0, cl:0, fc:0 };
 
-    // Measure a panel's natural scrollHeight off-screen
     function measure(key) {
       const el = document.getElementById('p-'+key);
       const prev = { h: el.style.height, b: el.style.bottom, t: el.style.top, tr: el.style.transition };
@@ -299,38 +274,30 @@
 
     function layoutAll() {
       const vh = window.innerHeight;
-      const usable = vh - PAD_B - PAD_T; // total available space in each sidebar
+      const usable = vh - PAD_B - PAD_T;
 
-      // ── Position sidebars to hug the centre box ──
-      // The centre box is centred and max 720px wide, with margins of var(--sw)=220px
-      // Find the actual rendered left edge of the content box
       const wrapper = document.getElementById('page-wrapper');
       const wRect   = wrapper.getBoundingClientRect();
-      // Content box inner: max-width 720px, padded by clamp(8px,2vw,16px) each side
       const innerPad = parseFloat(getComputedStyle(wrapper).paddingLeft) || 16;
       const contentLeft  = wRect.left + innerPad;
       const contentRight = wRect.right - innerPad;
 
       const sbLeft  = document.getElementById('sb-left');
       const sbRight = document.getElementById('sb-right');
-      const SW = 220; // sidebar width
+      const SW = 220;
 
-      // Left sidebar: right edge should touch contentLeft, so left = contentLeft - SW
       sbLeft.style.left  = Math.max(0, contentLeft - SW) + 'px';
       sbLeft.style.right = 'unset';
       sbLeft.style.width = SW + 'px';
 
-      // Right sidebar: left edge should touch contentRight
       sbRight.style.left  = contentRight + 'px';
       sbRight.style.right = 'unset';
       sbRight.style.width = SW + 'px';
 
-      // ── Left sidebar panels: sig (bottom), mp (top) ──
       const sigH = expanded.sig ? cappedH('sig') : HEADER_H;
       const sigBot = PAD_B;
       const mpH_natural = expanded.mp ? cappedH('mp') : HEADER_H;
       const mpBot = sigBot + sigH + GAP;
-      // Clamp mp so it doesn't overflow top
       const mpH = expanded.mp ? Math.min(mpH_natural, vh - mpBot - PAD_T) : HEADER_H;
 
       const pSig = document.getElementById('p-sig');
@@ -343,9 +310,7 @@
       pMp.style.height = Math.max(mpH, HEADER_H) + 'px';
       pMp.style.top = 'unset';
 
-      // ── Right sidebar panels: cl (top), fc (bottom, stretches) ──
       const clH = expanded.cl ? cappedH('cl') : HEADER_H;
-      // fc gets all remaining space between PAD_B and where cl sits
       const fcAvail = usable - clH - GAP;
       const fcH = expanded.fc ? Math.min(Math.max(fcAvail, HEADER_H), Math.floor(vh * MAX_FRAC)) : HEADER_H;
       const fcBot = PAD_B;
@@ -378,10 +343,11 @@
     // ══ MEETING PREP ════════════════════════════════════
     function fmt(dt) { return new Date(dt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
 
-    (function() {
+    function renderMeetingPrep() {
       const el = document.getElementById('mp-content');
-      if (!signals.meetings?.length) { el.innerHTML='<div class="prep-empty">No meetings today</div>'; return; }
-      el.innerHTML = [...signals.meetings]
+      const s = window.signals;
+      if (!s.meetings?.length) { el.innerHTML='<div class="prep-empty">No meetings today</div>'; return; }
+      el.innerHTML = [...s.meetings]
         .sort((a,b)=>new Date(a.start.dateTime)-new Date(b.start.dateTime))
         .map(m=>`<div class="meeting-card">
           <div class="meeting-card-subject">${m.subject}</div>
@@ -389,15 +355,22 @@
           <div class="meeting-card-people">${m.attendees.map(a=>a.emailAddress.name.split(' ')[0]).join(', ')}</div>
         </div>`).join('');
       setTimeout(() => { measure('mp'); layoutAll(); }, 50);
-    })();
+    }
+    renderMeetingPrep();
 
     // ══ SIGNALS ══════════════════════════════════════════
-    (function(){
-      const s = signals;
+    function renderSignals() {
+      const s = window.signals;
       const mH = Math.round((s.total_meeting_mins_7d/60)*10)/10;
       const mP = Math.round((mH/WEEK_HRS)*100);
       const fP = Math.round((s.focus_hours_7d/WEEK_HRS)*100);
-      const b = document.getElementById('sig-scenario'); b.textContent = scenario; b.classList.add(scenario);
+
+      const b = document.getElementById('sig-scenario');
+      b.textContent = window.currentScenario;
+      // Reset previous scenario class on re-render so reroll updates colour
+      b.classList.remove('overloaded','balanced','isolated');
+      b.classList.add(window.currentScenario);
+
       document.getElementById('sig-total').textContent = s.total_meetings_7d;
       document.getElementById('sig-time').textContent = mH + ' hrs';
       document.getElementById('sig-time-pct').textContent = mP + '% of 9–5 week';
@@ -411,25 +384,22 @@
       bf.style.background = fP < 20 ? '#dc2626' : 'var(--accent)';
       document.getElementById('sig-ch').textContent = s.collab_hours_7d + ' hrs';
       setTimeout(() => { measure('sig'); layoutAll(); }, 50);
-    })();
+    }
+    renderSignals();
 
     // ══ CHECKLIST ════════════════════════════════════════
-    // generateChecklist always clears and regenerates from scratch
     async function generateChecklist() {
       const btn = document.getElementById('cl-refresh');
       const box = document.getElementById('cl-tasks');
       btn.disabled = true;
 
-      // Clear existing tasks immediately
       box.innerHTML = `<div class="cl-loading">
         <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;animation:bl 1.2s ease-in-out infinite;"></span>
         <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;animation:bl 1.2s ease-in-out .2s infinite;"></span>
         <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;animation:bl 1.2s ease-in-out .4s infinite;"></span>
         &nbsp;Generating…</div>`;
 
-      const list = signals.meetings.map(m => `- ${m.subject} (${fmt(m.start.dateTime)}–${fmt(m.end.dateTime)})`).join('\n');
-
-      // Add a cache-busting nudge so the model doesn't return the exact same tasks
+      const list = window.signals.meetings.map(m => `- ${m.subject} (${fmt(m.start.dateTime)}–${fmt(m.end.dateTime)})`).join('\n');
       const nudge = `Session: ${Date.now()}`;
       let tasks;
       try {
@@ -437,13 +407,14 @@
           method: 'POST', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({
             message: `Generate exactly 3 short actionable prep tasks for these meetings today (${nudge}):\n${list}\nReturn ONLY a JSON array of 3 strings, no markdown. Make them specific and varied each time.`,
-            history: []
+            history: [],
+            scenario: window.currentScenario,
           })
         });
         const data = await res.json();
         tasks = JSON.parse(data.reply.replace(/```json|```/g,'').trim());
       } catch(_) {
-        const m = signals.meetings[0];
+        const m = window.signals.meetings[0];
         tasks = [
           `Review agenda for ${m ? m.subject : 'first meeting'}`,
           'Check outstanding actions from last session',
@@ -451,7 +422,6 @@
         ];
       }
 
-      // Render fresh tasks (no prior state carried over)
       box.innerHTML = '';
       tasks.forEach((t, i) => {
         const item = document.createElement('div');
@@ -466,6 +436,15 @@
       setTimeout(() => { measure('cl'); layoutAll(); }, 50);
     }
     generateChecklist();
+
+    // ══ Re-render on reroll ══════════════════════════════
+    // PR1: when the user clicks Reroll on the Settings page (or if scenario.js
+    // ever fires this event from elsewhere), refresh every panel in place.
+    window.addEventListener('scenariochanged', () => {
+      renderMeetingPrep();
+      renderSignals();
+      generateChecklist();
+    });
 
     // ══ COACH CHAT ═══════════════════════════════════════
     const HKEY = 'coach_history';
@@ -503,7 +482,15 @@
       tw.innerHTML = '<div class="fc-label">Coach</div><div class="fc-msg ai" style="display:flex;gap:4px;align-items:center;"><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);animation:fb 1.2s ease-in-out infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);animation:fb 1.2s ease-in-out .2s infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);animation:fb 1.2s ease-in-out .4s infinite;display:inline-block;"></span></div>';
       fcMsgs.appendChild(tw); fcMsgs.scrollTop = fcMsgs.scrollHeight;
       try {
-        const res  = await fetch('/api/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:fcHist})});
+        const res  = await fetch('/api/chat', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            message: text,
+            history: fcHist,
+            scenario: window.currentScenario,   // PR1: tell the API which scenario we're on
+          }),
+        });
         const data = await res.json();
         document.getElementById('fc-typing')?.remove(); fcConn(true);
         if(data.error){ fcRender('ai','Error: '+data.error); }

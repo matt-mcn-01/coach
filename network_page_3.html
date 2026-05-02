@@ -48,6 +48,9 @@
     }
     @media (max-width: 480px) { nav a { font-size: 9px; padding: 5px 4px; } }
   </style>
+
+  <!-- ══ Shared scenario module (PR1) ══ -->
+  <script src="/scenario.js"></script>
 </head>
 <body>
   <div class="page-wrapper">
@@ -221,9 +224,13 @@
       fcMessages.appendChild(typingWrap);
       fcMessages.scrollTop = fcMessages.scrollHeight;
       try {
-        const res  = await fetch('/api/chat', { // API KEY FOR LLM. ##############################################################
+        const res  = await fetch('/api/chat', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, history: fcHistory }),
+          body: JSON.stringify({
+            message: text,
+            history: fcHistory,
+            scenario: window.currentScenario,    // PR1: tell the API which scenario we're on
+          }),
         });
         const data = await res.json();
         document.getElementById('fc-typing')?.remove();

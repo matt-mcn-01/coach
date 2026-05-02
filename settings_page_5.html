@@ -38,16 +38,78 @@
     }
     nav a:hover  { color: var(--text); border-color: #555; }
     nav a.active { color: var(--accent); border-color: var(--accent); background: #0f1917; }
+
+    /* PR1: section-content now flex-starts so the Demo Controls card sits
+       at the top while everything below it is still empty/coming-soon. */
     .section-content {
       flex: 1; min-height: 0; background: var(--surface);
       border: 1px solid var(--border); border-radius: var(--radius);
-      display: flex; align-items: center; justify-content: center;
+      display: flex; flex-direction: column; align-items: stretch;
+      padding: clamp(16px, 2vh, 24px);
+      overflow-y: auto;
       color: var(--text-muted); font-family: var(--font-mono);
       font-size: clamp(11px, 1.5vw, 13px);
       margin-bottom: clamp(6px, 1.2vh, 16px);
+      gap: clamp(12px, 2vh, 20px);
     }
+
+    /* ── DEMO CONTROLS card (PR1) ────────────────────────────────────────
+       This whole .demo-card block, plus the matching <script> at the bottom,
+       can be deleted in one go for MVP / production. */
+    .demo-card {
+      background: #0f0f0f;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .demo-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .demo-card-title {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .demo-card-body {
+      font-family: var(--font-ui); font-size: 13px;
+      color: var(--text); line-height: 1.5;
+    }
+    .demo-card-meta {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--text-muted);
+    }
+    .demo-card-meta strong {
+      color: var(--accent); font-weight: 500; text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .demo-reroll-btn {
+      align-self: flex-start;
+      background: var(--accent);
+      border: none; border-radius: 6px;
+      color: #0f0f0f;
+      font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 8px 14px; cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .demo-reroll-btn:hover { opacity: 0.85; }
+    .demo-reroll-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .placeholder {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: clamp(11px, 1.5vw, 13px);
+    }
+
     @media (max-width: 480px) { nav a { font-size: 9px; padding: 5px 4px; } }
   </style>
+
+  <!-- ══ Shared scenario module (PR1) ══ -->
+  <script src="/scenario.js"></script>
 </head>
 <body>
   <div class="page-wrapper">
@@ -60,7 +122,29 @@
         <a href="/settings_page_5.html" class="active">Settings</a>
       </nav>
     </div>
-    <div class="section-content">Settings — coming soon</div>
+
+    <div class="section-content">
+      <!-- ══ DEMO CONTROLS — PR1 (delete this whole block for MVP) ══ -->
+      <div class="demo-card" id="demo-controls">
+        <div class="demo-card-header">
+          <span class="demo-card-title">Demo Controls</span>
+        </div>
+        <div class="demo-card-body">
+          You're currently exploring the
+          <span class="demo-card-meta"><strong id="demo-current">—</strong></span>
+          working pattern. Reroll to see the coach respond to a different week.
+        </div>
+        <div class="demo-card-meta">
+          Reroll picks one of <em>overloaded</em>, <em>balanced</em>, or
+          <em>isolated</em> &mdash; never the one you're already on.
+          The choice persists until you close this tab.
+        </div>
+        <button class="demo-reroll-btn" id="demo-reroll" type="button">↻ Reroll Scenario</button>
+      </div>
+      <!-- ══ END DEMO CONTROLS ══ -->
+
+      <div class="placeholder">Settings — coming soon</div>
+    </div>
   </div>
 
   <!-- Floating chat -->
@@ -127,6 +211,35 @@
       #fc-bar, #fc-panel { width:calc(100% - 32px); right:16px; }
     }
   </style>
+
+  <!-- ══ DEMO CONTROLS script — PR1 (delete this whole block for MVP) ══ -->
+  <script>
+    (function () {
+      const label = document.getElementById('demo-current');
+      const btn   = document.getElementById('demo-reroll');
+
+      function refreshLabel() {
+        label.textContent = (window.currentScenario || '—').toUpperCase();
+      }
+      refreshLabel();
+
+      btn.addEventListener('click', () => {
+        btn.disabled = true;
+        const next = window.rerollScenario();   // fires 'scenariochanged' globally
+        refreshLabel();
+        // tiny visual confirmation that something happened
+        btn.textContent = '↻ Now: ' + next;
+        setTimeout(() => {
+          btn.textContent = '↻ Reroll Scenario';
+          btn.disabled = false;
+        }, 1200);
+      });
+
+      // If another tab/listener somehow rerolls, keep our label in sync
+      window.addEventListener('scenariochanged', refreshLabel);
+    })();
+  </script>
+  <!-- ══ END DEMO CONTROLS script ══ -->
 
   <script>
     const HISTORY_KEY = 'coach_history';
@@ -221,9 +334,13 @@
       fcMessages.appendChild(typingWrap);
       fcMessages.scrollTop = fcMessages.scrollHeight;
       try {
-        const res  = await fetch('/api/chat', { // API KEY FOR LLM. ##############################################################
+        const res  = await fetch('/api/chat', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, history: fcHistory }),
+          body: JSON.stringify({
+            message: text,
+            history: fcHistory,
+            scenario: window.currentScenario,    // PR1: tell the API which scenario we're on
+          }),
         });
         const data = await res.json();
         document.getElementById('fc-typing')?.remove();

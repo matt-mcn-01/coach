@@ -99,6 +99,9 @@
       #sig-bar, #sig-panel, #fc-bar, #fc-panel { width:calc(100% - 32px); left:16px; right:auto; }
     }
   </style>
+
+  <!-- ══ Shared scenario module (PR1) ══ -->
+  <script src="/scenario.js"></script>
 </head>
 <body>
   <div class="page-wrapper">
@@ -220,26 +223,21 @@
     }
     sigApplyState(sigOpen);
 
-    (function populateSignals() {
+    // PR1: signals come from window.signals (set by /scenario.js).
+    // The previous date-seeded picker and inline templates were removed.
+    function renderSignals() {
       const WEEK_HRS = 40;
-      const d = new Date();
-      const seed = d.getFullYear() * 365 + d.getMonth() * 31 + d.getDate();
-      function sr(n) { const x = Math.sin(seed * 9301 + n * 49297 + 233) * 73214; return x - Math.floor(x); }
-      const scenarios = ['overloaded', 'balanced', 'isolated'];
-      const scenario  = scenarios[Math.floor(sr(0) * 3)];
-      const ri = (mn, mx, n) => Math.floor(sr(n) * (mx - mn + 1)) + mn;
-      const rf = (mn, mx, n) => Math.round((sr(n) * (mx - mn) + mn) * 10) / 10;
-      const templates = {
-        overloaded: { total_meetings_7d: ri(18,26,1), total_meeting_mins_7d: ri(900,1200,2), back_to_back_count: ri(7,12,3), focus_blocks_60min: ri(0,2,4),   focus_hours_7d: rf(1.5,4.0,5),   collab_hours_7d: rf(16.0,22.0,6) },
-        balanced:   { total_meetings_7d: ri(8,14,1),  total_meeting_mins_7d: ri(400,600,2),  back_to_back_count: ri(1,4,3),  focus_blocks_60min: ri(5,9,4),   focus_hours_7d: rf(10.0,15.0,5), collab_hours_7d: rf(6.0,12.0,6) },
-        isolated:   { total_meetings_7d: ri(1,4,1),   total_meeting_mins_7d: ri(40,120,2),   back_to_back_count: 0,          focus_blocks_60min: ri(10,18,4), focus_hours_7d: rf(22.0,32.0,5), collab_hours_7d: rf(0.5,2.0,6) },
-      };
-      const s = { scenario, ...templates[scenario] };
+      const s = window.signals;
       const meetingHrs = Math.round((s.total_meeting_mins_7d / 60) * 10) / 10;
       const meetingPct = Math.round((meetingHrs / WEEK_HRS) * 100);
       const focusPct   = Math.round((s.focus_hours_7d / WEEK_HRS) * 100);
+
       const badge = document.getElementById('sig-scenario');
-      badge.textContent = scenario; badge.classList.add(scenario);
+      badge.textContent = window.currentScenario;
+      // Reset previous scenario class on re-render so reroll updates colour
+      badge.classList.remove('overloaded','balanced','isolated');
+      badge.classList.add(window.currentScenario);
+
       document.getElementById('sig-total-meetings').textContent = s.total_meetings_7d;
       document.getElementById('sig-meeting-time').textContent   = meetingHrs + ' hrs';
       document.getElementById('sig-meeting-pct').textContent    = meetingPct + '% of 9–5 week';
@@ -252,7 +250,11 @@
       barFocus.style.width      = Math.min(focusPct, 100) + '%';
       barFocus.style.background = focusPct < 20 ? '#dc2626' : 'var(--accent)';
       document.getElementById('sig-collab-hrs').textContent = s.collab_hours_7d + ' hrs';
-    })();
+    }
+    renderSignals();
+
+    // PR1: re-render the signals panel when reroll fires from Settings.
+    window.addEventListener('scenariochanged', renderSignals);
 
     // ── Floating Coach Chat ──────────────────────────
     const HISTORY_KEY = 'coach_history';
@@ -333,7 +335,11 @@
       try {
         const res = await fetch('/api/chat', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, history: fcHistory }),
+          body: JSON.stringify({
+            message: text,
+            history: fcHistory,
+            scenario: window.currentScenario,    // PR1: tell the API which scenario we're on
+          }),
         });
         const data = await res.json();
         document.getElementById('fc-typing')?.remove();
