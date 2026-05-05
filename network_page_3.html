@@ -8,45 +8,206 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f0f0f; --border: #2e2e2e; --accent: #00d4aa;
-      --accent-dim: #00d4aa22; --text: #e8e8e8; --text-muted: #666;
-      --surface: #1a1a1a; --radius: 10px;
-      --font-mono: 'IBM Plex Mono', monospace;
+      --text: #1a1a2e;
+      --text-muted: #8888aa;
+      --bg: #979797;
+      --surface: #ffffff;
+      --border: #dcdcec;
+      --accent: #7c3aed;
+      --accent-dim: #7c3aed18;
+      --accent-light: #ede9fe;
+      --user-bg: #ede9fe;
+      --panel-bg: #e4e4ef;
+      --panel-border: #c8c8de;
+      --warn: #dc2626;
+      --warn-bg: #fee2e2;
+      --warn-border: #fca5a5;
+      --good: #059669;
+      --good-bg: #d1fae5;
+      --radius: 10px;
       --font-ui: 'IBM Plex Sans', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
     }
+
     body {
       background: url('/KCS_Arch_COPYRIGHT.jpg') center/cover no-repeat fixed, var(--bg);
       color: var(--text); font-family: var(--font-ui);
       height: 100dvh; display: flex; flex-direction: column; align-items: center; overflow: hidden;
     }
+
     .page-wrapper {
       width: 100%; max-width: 720px; height: 100dvh;
       display: flex; flex-direction: column;
       padding: 0 clamp(8px, 2vw, 16px);
       gap: clamp(6px, 1.2vh, 12px);
     }
+
     .section-nav { flex-shrink: 0; padding: clamp(10px, 2vh, 20px) 0 0; }
     nav { display: flex; gap: clamp(4px, 0.8vw, 8px); }
     nav a {
-      background: #0f0f0f;
-      flex: 1; text-align: center;
+      background: var(--surface); flex: 1; text-align: center;
       font-family: var(--font-mono); font-size: clamp(9px, 1.2vw, 11px); font-weight: 500;
       letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
       padding: clamp(5px, 0.8vh, 7px) clamp(4px, 1vw, 14px);
       border-radius: 6px; border: 1px solid var(--border);
       color: var(--text-muted); transition: color 0.15s, border-color 0.15s, background 0.15s;
     }
-    nav a:hover  { color: var(--text); border-color: #555; }
-    nav a.active { color: var(--accent); border-color: var(--accent); background: #0f1917; }
+    nav a:hover  { color: var(--text); border-color: #aaa; }
+    nav a.active { color: var(--accent); border-color: var(--accent); background: var(--accent-light); }
+
     .section-content {
-      flex: 1; min-height: 0; background: var(--surface);
-      border: 1px solid var(--border); border-radius: var(--radius);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text-muted); font-family: var(--font-mono);
-      font-size: clamp(11px, 1.5vw, 13px);
+      flex: 1; min-height: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       margin-bottom: clamp(6px, 1.2vh, 16px);
+      padding: clamp(14px, 2vh, 22px);
+      display: flex; flex-direction: column;
+      gap: clamp(10px, 1.4vh, 16px);
+      overflow-y: auto;
+      overflow-x: hidden;
     }
-    @media (max-width: 480px) { nav a { font-size: 9px; padding: 5px 4px; } }
+
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; flex-shrink: 0;
+    }
+    .page-title {
+      font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .insight-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 12px;
+      flex-shrink: 0;
+    }
+    .card-header {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 10px;
+    }
+    .card-title {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .card-headline {
+      font-size: 13px; color: var(--text); font-weight: 400; line-height: 1.4;
+    }
+    .card-headline strong { color: var(--accent); font-weight: 500; }
+
+    /* ── Scenario badge ── */
+    .scenario-badge {
+      font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+      letter-spacing: .06em; padding: 3px 7px; border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .scenario-badge.overloaded { color: var(--warn); background: var(--warn-bg); border: 1px solid var(--warn-border); }
+    .scenario-badge.balanced   { color: var(--accent); background: var(--accent-light); border: 1px solid #c4b5fd; }
+    .scenario-badge.isolated   { color: #d97706; background: #fef3c7; border: 1px solid #fcd34d; }
+
+    /* ── Two-column layout for gauge + collaborators ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(10px, 1.4vh, 16px);
+    }
+    @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* ── Collaborators list ── */
+    .collab-item {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      align-items: center;
+      gap: 10px;
+    }
+    .collab-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+      display: flex; align-items: center; justify-content: center;
+      letter-spacing: 0;
+    }
+    .collab-name {
+      font-size: 13px; color: var(--text); font-weight: 400;
+    }
+    .collab-count {
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+    .collab-empty {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--text-muted); text-align: center;
+      padding: 14px 0;
+    }
+
+    /* ── Talk-time gauge ── */
+    .gauge-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px;
+    }
+    .gauge-track  { fill: none; stroke: var(--accent-light); stroke-width: 14; }
+    .gauge-fill   { fill: none; stroke: var(--accent); stroke-width: 14; stroke-linecap: round;
+                    transition: stroke-dasharray .8s ease; }
+    .gauge-text   {
+      font-family: var(--font-mono); font-size: 28px; font-weight: 500;
+      fill: var(--text);
+    }
+    .gauge-label  {
+      font-family: var(--font-mono); font-size: 9px; text-transform: uppercase;
+      letter-spacing: 0.08em; fill: var(--text-muted);
+    }
+
+    /* ── Punctuality dots ── */
+    .dot-grid { display: flex; gap: 6px; flex-wrap: wrap; }
+    .dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1px solid transparent;
+    }
+    .dot.ontime { background: var(--good); border-color: var(--good); }
+    .dot.late   { background: #fbbf24; border-color: #f59e0b; }
+    .dot.vlate  { background: var(--warn); border-color: var(--warn); }
+    .dot-legend {
+      display: flex; gap: 14px; align-items: center;
+      font-family: var(--font-mono); font-size: 9px;
+      color: var(--text-muted); letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .dot-legend-item { display: flex; align-items: center; gap: 5px; }
+    .dot-legend-item .dot { width: 8px; height: 8px; }
+
+    /* ── Sparkline ── */
+    .spark-axis  { font-family: var(--font-mono); font-size: 9px; fill: var(--text-muted); letter-spacing: 0.04em; }
+    .spark-line  { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .spark-area  { fill: var(--accent-light); }
+    .spark-dot   { fill: var(--accent); }
+    .spark-grid  { stroke: var(--border); stroke-width: 0.5; }
+
+    /* ── Floating chat ── */
+    @keyframes fc-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    @keyframes fc-blink { 0%,100%{opacity:0.2;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
+    .fc-wrap { display:flex; flex-direction:column; gap:2px; }
+    .fc-wrap.user { align-self:flex-end; align-items:flex-end; }
+    .fc-wrap.ai   { align-self:flex-start; align-items:flex-start; }
+    .fc-label { font-family:var(--font-mono); font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); padding:0 2px; }
+    .fc-msg { font-size:12px; line-height:1.5; padding:7px 10px; border-radius:6px; border:1px solid var(--border); max-width:90%; }
+    .fc-msg.user { background:var(--user-bg); border-color:#c4b5fd; color:var(--text); }
+    .fc-msg.ai   { background:var(--surface); color:var(--text); }
+    #fc-input:focus { border-color:var(--accent) !important; }
+    #fc-send:hover  { opacity:0.85; }
+    #fc-send:disabled { opacity:0.35; cursor:not-allowed; }
+    #fc-panel.open { max-height: calc(50dvh - 78px) !important; }
+
+    @media (max-width: 480px) {
+      nav a { font-size: 9px; padding: 5px 4px; }
+      #fc-bar, #fc-panel { width:calc(100% - 32px); right:16px; }
+    }
   </style>
 
   <!-- ══ Shared scenario module (PR1) ══ -->
@@ -57,205 +218,386 @@
     <div class="section-nav">
       <nav>
         <a href="/index.html">Dashboard</a>
-        <a href="/deep_work_page_2.html" >Deep Work</a>
+        <a href="/deep_work_page_2.html">Deep Work</a>
         <a href="/network_page_3.html" class="active">Network</a>
-        <a href="/career_path_page_4.html" >Career Path</a>
-        <a href="/settings_page_5.html" >Settings</a>
+        <a href="/career_path_page_4.html">Career Path</a>
+        <a href="/settings_page_5.html">Settings</a>
       </nav>
     </div>
-    <div class="section-content">Network — coming soon</div>
+
+    <div class="section-content">
+
+      <div class="page-header">
+        <span class="page-title">Network — Past 7 Days</span>
+        <span class="scenario-badge" id="nw-scenario">—</span>
+      </div>
+
+      <!-- ── Talk-time gauge + Top collaborators (two-column) ── -->
+      <div class="two-col">
+
+        <div class="insight-card">
+          <div class="card-header">
+            <span class="card-title">Talk-time Share</span>
+            <span class="card-title">in meetings</span>
+          </div>
+          <div class="gauge-wrap">
+            <svg viewBox="0 0 200 130" style="width:100%; max-width:200px; height:auto;">
+              <!-- Semicircle track -->
+              <path class="gauge-track" d="M 25 110 A 75 75 0 0 1 175 110"/>
+              <!-- Filled portion (animated via stroke-dasharray) -->
+              <path class="gauge-fill" id="nw-gauge-fill"
+                    d="M 25 110 A 75 75 0 0 1 175 110"
+                    pathLength="100"
+                    stroke-dasharray="0 100"/>
+              <!-- Centred numeric label -->
+              <text class="gauge-text" x="100" y="100" text-anchor="middle" id="nw-gauge-num">—</text>
+              <text class="gauge-label" x="100" y="120" text-anchor="middle">Your share</text>
+            </svg>
+          </div>
+          <div class="card-headline" id="nw-gauge-headline">—</div>
+        </div>
+
+        <div class="insight-card">
+          <div class="card-header">
+            <span class="card-title">Top Collaborators</span>
+            <span class="card-title">by meeting count</span>
+          </div>
+          <div id="nw-collab-list">
+            <div class="collab-empty">Loading…</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Punctuality ── -->
+      <div class="insight-card">
+        <div class="card-header">
+          <span class="card-title">Punctuality — Last 10 Meetings</span>
+          <span class="card-title" id="nw-punct-summary">—</span>
+        </div>
+        <div class="dot-grid" id="nw-dot-grid"></div>
+        <div class="dot-legend">
+          <div class="dot-legend-item"><span class="dot ontime"></span><span>On time</span></div>
+          <div class="dot-legend-item"><span class="dot late"></span><span>Late &lt; 5m</span></div>
+          <div class="dot-legend-item"><span class="dot vlate"></span><span>Very late</span></div>
+        </div>
+        <div class="card-headline" id="nw-punct-headline">—</div>
+      </div>
+
+      <!-- ── Collab hours sparkline ── -->
+      <div class="insight-card">
+        <div class="card-header">
+          <span class="card-title">Collaboration Hours — Daily</span>
+          <span class="card-title" id="nw-spark-total">—</span>
+        </div>
+        <svg id="nw-sparkline" viewBox="0 0 600 140" preserveAspectRatio="xMidYMid meet"
+             style="width:100%; height:auto; max-height:140px;">
+        </svg>
+        <div class="card-headline" id="nw-spark-headline">—</div>
+      </div>
+
+    </div>
   </div>
 
-  <!-- Floating chat -->
+  <!-- ══ Floating Coach Chat ══ -->
   <div id="fc-bar" style="
-    position:fixed; bottom:16px; right:16px;
-    width:320px; height:38px;
-    background:#1a1a1a; border:1px solid #2e2e2e; border-radius:8px;
+    position:fixed; bottom:16px; right:16px; width:240px; height:38px;
+    background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:8px;
     display:flex; align-items:center; gap:8px; padding:0 12px;
     cursor:pointer; z-index:1000; user-select:none;
+    box-shadow:0 2px 8px rgba(0,0,0,0.10);
   " onclick="fcToggle()">
-    <div id="fc-status-dot" style="width:6px;height:6px;border-radius:50%;background:#e74c3c;box-shadow:0 0 6px #e74c3c;animation:fc-pulse 2s ease-in-out infinite;flex-shrink:0;transition:background 0.3s,box-shadow 0.3s;"></div>
-    <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#666;">Coach</span>
-    <span id="fc-chevron" style="margin-left:auto;font-size:10px;color:#666;transition:transform 0.2s;">▲</span>
+    <div id="fc-status-dot" style="width:6px;height:6px;border-radius:50%;background:#f87171;box-shadow:0 0 6px #f87171;animation:fc-pulse 2s ease-in-out infinite;flex-shrink:0;transition:background 0.3s,box-shadow 0.3s;"></div>
+    <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);">Coach</span>
+    <span id="fc-chevron" style="margin-left:auto;font-size:10px;color:var(--text-muted);transition:transform 0.2s;">▲</span>
   </div>
 
   <div id="fc-panel" style="
-    position:fixed; bottom:62px; right:16px;
-    width:320px; max-height:0; overflow:hidden;
+    position:fixed; bottom:62px; right:16px; width:240px; max-height:0; overflow:hidden;
     background:transparent; border:1px solid transparent; border-radius:8px;
     z-index:999; transition:max-height 0.28s ease, border-color 0.28s ease, background 0.28s ease;
     display:flex; flex-direction:column;
   ">
-    <div style="padding:10px 12px;border-bottom:1px solid #2e2e2e;display:flex;align-items:center;gap:8px;flex-shrink:0;">
-      <div id="fc-panel-dot" style="width:6px;height:6px;border-radius:50%;background:#e74c3c;box-shadow:0 0 6px #e74c3c;animation:fc-pulse 2s ease-in-out infinite;transition:background 0.3s,box-shadow 0.3s;"></div>
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#666;">Coaching Agent</span>
+    <div style="padding:10px 12px;border-bottom:1px solid var(--panel-border);display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <div id="fc-panel-dot" style="width:6px;height:6px;border-radius:50%;background:#f87171;box-shadow:0 0 6px #f87171;animation:fc-pulse 2s ease-in-out infinite;transition:background 0.3s,box-shadow 0.3s;"></div>
+      <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);">Coaching Agent</span>
     </div>
-    <div id="fc-messages" style="
-      overflow-y:auto; padding:10px 12px;
-      display:flex; flex-direction:column; gap:8px;
-      flex:1;
-      scrollbar-width:thin; scrollbar-color:#2e2e2e transparent;
-    "></div>
-    <div style="padding:8px 12px;border-top:1px solid #2e2e2e;display:flex;gap:6px;align-items:flex-end;flex-shrink:0;">
-      <textarea id="fc-input" rows="1" placeholder="Message…" style="
-        flex:1;background:#0f0f0f;border:1px solid #2e2e2e;border-radius:6px;
-        color:#e8e8e8;font-family:'IBM Plex Sans',sans-serif;font-size:12px;
-        padding:8px 10px;resize:none;min-height:34px;max-height:80px;
-        outline:none;transition:border-color 0.2s;line-height:1.4;
-      "></textarea>
-      <button id="fc-send" style="
-        background:#00d4aa;border:none;border-radius:6px;color:#0f0f0f;
-        font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;
-        padding:0 12px;height:34px;cursor:pointer;white-space:nowrap;flex-shrink:0;
-        transition:opacity 0.2s;
-      ">Send</button>
+    <div id="fc-messages" style="overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;flex:1;scrollbar-width:thin;scrollbar-color:var(--border) transparent;"></div>
+    <div style="padding:8px 12px;border-top:1px solid var(--panel-border);display:flex;gap:6px;align-items:flex-end;flex-shrink:0;">
+      <textarea id="fc-input" rows="1" placeholder="Message…" style="flex:1;background:var(--panel-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;padding:8px 10px;resize:none;min-height:34px;max-height:80px;outline:none;transition:border-color 0.2s;line-height:1.4;"></textarea>
+      <button id="fc-send" style="background:var(--accent);border:none;border-radius:6px;color:#fff;font-family:var(--font-mono);font-size:11px;font-weight:500;padding:0 12px;height:34px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:opacity 0.2s;">Send</button>
     </div>
   </div>
 
-  <style>
-    @keyframes fc-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-    @keyframes fc-blink { 0%,100%{opacity:0.2;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
-    .fc-wrap { display:flex;flex-direction:column;gap:2px; }
-    .fc-wrap.user { align-self:flex-end;align-items:flex-end; }
-    .fc-wrap.ai   { align-self:flex-start;align-items:flex-start; }
-    .fc-label { font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:#666;padding:0 2px; }
-    .fc-msg { font-size:12px;line-height:1.5;padding:7px 10px;border-radius:6px;border:1px solid #2e2e2e;max-width:90%; }
-    .fc-msg.user { background:#1e2a27;border-color:#00d4aa;color:#e8e8e8; }
-    .fc-msg.ai   { background:#0f0f0f;color:#e8e8e8; }
-    #fc-input:focus { border-color:#00d4aa !important; }
-    #fc-send:hover  { opacity:0.85; }
-    #fc-send:disabled { opacity:0.35;cursor:not-allowed; }
-    #fc-panel.open { max-height: calc(50dvh - 78px) !important; }
-    @media (max-width:480px) {
-      #fc-bar, #fc-panel { width:calc(100% - 32px); right:16px; }
-    }
-  </style>
-
   <script>
-    const HISTORY_KEY = 'coach_history';
-    let fcHistory = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
+  // ════════════════════════════════════════════════════════════════════════════
+  // Network page — scenario-driven SVG visuals (PR2)
+  // ════════════════════════════════════════════════════════════════════════════
 
-    const fcPanel     = document.getElementById('fc-panel');
-    const fcMessages  = document.getElementById('fc-messages');
-    const fcInput     = document.getElementById('fc-input');
-    const fcSend      = document.getElementById('fc-send');
-    const fcChevron   = document.getElementById('fc-chevron');
-    const fcStatusDot = document.getElementById('fc-status-dot');
-    const fcPanelDot  = document.getElementById('fc-panel-dot');
+  // Per-scenario data we don't get from window.signals: talk-time%,
+  // daily collab-hours breakdown, and punctuality pattern. Hand-tuned to feel
+  // realistic for each scenario without inventing names or specifics.
+  const NET_DATA = {
+    overloaded: {
+      talkPct: 58,
+      // 7 days, totals to roughly s.collab_hours_7d (~19.5)
+      dailyCollab: [3.5, 4.0, 3.5, 3.0, 3.5, 1.0, 1.0],
+      // last 10 meetings, oldest → newest
+      punctuality: ['ontime','ontime','late','ontime','late','late','vlate','late','ontime','late'],
+      gaugeNote:  'You spoke <strong>more than half</strong> the time. Worth checking colleagues had room to contribute.',
+      punctNote:  'Lateness is creeping up — likely a side-effect of <strong>back-to-back overload</strong>.',
+      sparkNote:  'Heavy collaboration concentrated <strong>Mon–Wed</strong>, then a sharp drop. Watch for end-of-week burnout.',
+    },
+    balanced: {
+      talkPct: 41,
+      dailyCollab: [1.5, 1.5, 2.0, 1.5, 1.0, 0.5, 1.0],
+      punctuality: ['ontime','ontime','ontime','late','ontime','ontime','ontime','ontime','late','ontime'],
+      gaugeNote:  'A <strong>healthy share</strong>. You\'re contributing without dominating.',
+      punctNote:  '<strong>8 of 10 meetings on time</strong> — strong reliability.',
+      sparkNote:  'Collaboration is <strong>spread evenly</strong> across the week. Sustainable rhythm.',
+    },
+    isolated: {
+      talkPct: 31,
+      dailyCollab: [0.5, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0],
+      punctuality: ['ontime','ontime','ontime','ontime','ontime','ontime','ontime','ontime','ontime','ontime'],
+      gaugeNote:  'Low share — but only <strong>2 meetings</strong> this week. Limited data to read into.',
+      punctNote:  'Perfect record. Easy to keep when the diary is light.',
+      sparkNote:  'Almost no collaboration time. <strong>Consider booking an informal catch-up</strong> — isolation compounds.',
+    },
+  };
 
-    function fcSaveHistory() { sessionStorage.setItem(HISTORY_KEY, JSON.stringify(fcHistory)); }
+  // ── Scenario badge ──────────────────────────────────────────────────────
+  function renderBadge(scenario) {
+    const b = document.getElementById('nw-scenario');
+    b.textContent = scenario;
+    b.classList.remove('overloaded','balanced','isolated');
+    b.classList.add(scenario);
+  }
 
-    function fcSetConnected(on) {
-      const col = on ? '#00d4aa' : '#e74c3c';
-      const glow = on ? '0 0 6px #00d4aa' : '0 0 6px #e74c3c';
-      fcStatusDot.style.background = col;
-      fcStatusDot.style.boxShadow  = glow;
-      fcPanelDot.style.background  = col;
-      fcPanelDot.style.boxShadow   = glow;
-    }
+  // ── Talk-time gauge ─────────────────────────────────────────────────────
+  function renderGauge(scenario) {
+    const pct = NET_DATA[scenario].talkPct;
+    const fill = document.getElementById('nw-gauge-fill');
+    // pathLength=100 means stroke-dasharray X 100-X fills X% of the path
+    fill.setAttribute('stroke-dasharray', `${pct} 100`);
+    document.getElementById('nw-gauge-num').textContent = pct + '%';
+    document.getElementById('nw-gauge-headline').innerHTML = NET_DATA[scenario].gaugeNote;
+  }
 
-    async function fcCheckConnection() {
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: '__ping__', history: [] }),
-        });
-        if (res.ok) fcSetConnected(true);
-      } catch (err) { fcSetConnected(false); }
-    }
-    fcCheckConnection();
-
-    function fcApplyState(open) {
-      if (open) {
-        fcPanel.classList.add('open');
-      } else {
-        fcPanel.classList.remove('open');
-        fcPanel.style.maxHeight = '0';
-      }
-      fcPanel.style.borderColor = open ? '#2e2e2e' : 'transparent';
-      fcPanel.style.background  = open ? '#1a1a1a' : 'transparent';
-      fcChevron.style.transform = open ? 'rotate(180deg)' : '';
-    }
-
-    function fcRenderMessage(role, text) {
-      const wrap  = document.createElement('div');
-      wrap.className = 'fc-wrap ' + (role === 'user' ? 'user' : 'ai');
-      const label = document.createElement('div');
-      label.className = 'fc-label';
-      label.textContent = role === 'user' ? 'You' : 'Coach';
-      const msg   = document.createElement('div');
-      msg.className = 'fc-msg ' + (role === 'user' ? 'user' : 'ai');
-      msg.textContent = text;
-      wrap.appendChild(label); wrap.appendChild(msg);
-      fcMessages.appendChild(wrap);
-      fcMessages.scrollTop = fcMessages.scrollHeight;
-    }
-
-    function fcToggle() {
-      fcHistory = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
-      const fcOpen = sessionStorage.getItem('coach_open') !== 'false';
-      const newOpen = !fcOpen;
-      sessionStorage.setItem('coach_open', newOpen);
-      fcApplyState(newOpen);
-      if (newOpen) {
-        fcMessages.innerHTML = '';
-        fcHistory.forEach(m => fcRenderMessage(m.role === 'user' ? 'user' : 'ai', m.content));
-        setTimeout(() => fcInput.focus(), 300);
-      }
-    }
-
-    fcInput.addEventListener('input', () => {
-      fcInput.style.height = 'auto';
-      fcInput.style.height = Math.min(fcInput.scrollHeight, 80) + 'px';
+  // ── Top Collaborators ───────────────────────────────────────────────────
+  // Count how often each person appears across signals.meetings.
+  // Exclude "Monty Austin-Ajaero" who is the user themselves.
+  function renderCollab() {
+    const meetings = window.signals.meetings || [];
+    const counts = {};
+    meetings.forEach(m => {
+      (m.attendees || []).forEach(a => {
+        const name = a?.emailAddress?.name;
+        if (!name || name === 'Monty Austin-Ajaero') return;
+        counts[name] = (counts[name] || 0) + 1;
+      });
     });
-    fcInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); fcSendMessage(); }
-    });
-    fcSend.addEventListener('click', fcSendMessage);
 
-    async function fcSendMessage() {
-      const text = fcInput.value.trim();
-      if (!text) return;
-      fcInput.value = ''; fcInput.style.height = 'auto'; fcSend.disabled = true;
-      fcRenderMessage('user', text);
-      const typingWrap = document.createElement('div');
-      typingWrap.className = 'fc-wrap ai'; typingWrap.id = 'fc-typing';
-      typingWrap.innerHTML = '<div class="fc-label">Coach</div><div class="fc-msg ai" style="display:flex;gap:4px;align-items:center;"><span style="width:5px;height:5px;border-radius:50%;background:#00d4aa;animation:fc-blink 1.2s ease-in-out infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:#00d4aa;animation:fc-blink 1.2s ease-in-out 0.2s infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:#00d4aa;animation:fc-blink 1.2s ease-in-out 0.4s infinite;display:inline-block;"></span></div>';
-      fcMessages.appendChild(typingWrap);
-      fcMessages.scrollTop = fcMessages.scrollHeight;
-      try {
-        const res  = await fetch('/api/chat', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: text,
-            history: fcHistory,
-            scenario: window.currentScenario,    // PR1: tell the API which scenario we're on
-          }),
-        });
-        const data = await res.json();
-        document.getElementById('fc-typing')?.remove();
-        fcSetConnected(true);
-        if (data.error) { fcRenderMessage('ai', 'Error: ' + data.error); }
-        else {
-          fcRenderMessage('ai', data.reply);
-          fcHistory.push({ role: 'user',  content: text });
-          fcHistory.push({ role: 'coach', content: data.reply });
-          fcSaveHistory();
-        }
-      } catch (err) {
-        document.getElementById('fc-typing')?.remove();
-        fcSetConnected(false);
-        fcRenderMessage('ai', 'Could not reach the server.');
-      } finally {
-        fcSend.disabled = false; fcInput.focus();
-      }
+    const sorted = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+
+    const list = document.getElementById('nw-collab-list');
+    if (sorted.length === 0) {
+      list.innerHTML = '<div class="collab-empty">No collaborators this week</div>';
+      return;
     }
 
-    const initOpen = sessionStorage.getItem('coach_open') !== 'false';
-    fcApplyState(initOpen);
-    if (initOpen) {
+    list.innerHTML = sorted.map(([name, count]) => {
+      const initials = name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+      return `
+        <div class="collab-item">
+          <div class="collab-avatar">${initials}</div>
+          <div class="collab-name">${name}</div>
+          <div class="collab-count">${count} mtg${count !== 1 ? 's' : ''}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ── Punctuality dot grid ────────────────────────────────────────────────
+  function renderPunctuality(scenario) {
+    const data = NET_DATA[scenario].punctuality;
+    const grid = document.getElementById('nw-dot-grid');
+    grid.innerHTML = data.map(state => `<div class="dot ${state}"></div>`).join('');
+
+    const ontime = data.filter(d => d === 'ontime').length;
+    document.getElementById('nw-punct-summary').textContent = `${ontime}/${data.length} on time`;
+    document.getElementById('nw-punct-headline').innerHTML = NET_DATA[scenario].punctNote;
+  }
+
+  // ── Collab hours sparkline ──────────────────────────────────────────────
+  function renderSparkline(scenario) {
+    const data = NET_DATA[scenario].dailyCollab;
+    const days = ['M','T','W','T','F','S','S'];
+    const total = Math.round(data.reduce((a, b) => a + b, 0) * 10) / 10;
+    document.getElementById('nw-spark-total').textContent = total + ' hrs total';
+
+    const svg = document.getElementById('nw-sparkline');
+    const W = 600, H = 140;
+    const padL = 24, padR = 16, padT = 14, padB = 26;
+    const innerW = W - padL - padR;
+    const innerH = H - padT - padB;
+    const maxV = Math.max(...data, 1) * 1.1;
+
+    const xFor = i => padL + (i / (data.length - 1)) * innerW;
+    const yFor = v => padT + innerH - (v / maxV) * innerH;
+
+    // Horizontal grid line at zero
+    let inner = '';
+    inner += `<line class="spark-grid" x1="${padL}" y1="${padT + innerH}" x2="${padL + innerW}" y2="${padT + innerH}"/>`;
+
+    // Area fill (under the line)
+    const linePath = data.map((v, i) => `${i === 0 ? 'M' : 'L'} ${xFor(i)} ${yFor(v)}`).join(' ');
+    const areaPath = linePath + ` L ${xFor(data.length - 1)} ${padT + innerH} L ${xFor(0)} ${padT + innerH} Z`;
+    inner += `<path class="spark-area" d="${areaPath}"/>`;
+
+    // Line
+    inner += `<path class="spark-line" d="${linePath}"/>`;
+
+    // Dots at each data point
+    data.forEach((v, i) => {
+      inner += `<circle class="spark-dot" cx="${xFor(i)}" cy="${yFor(v)}" r="3"/>`;
+    });
+
+    // X-axis day labels
+    days.forEach((d, i) => {
+      inner += `<text class="spark-axis" x="${xFor(i)}" y="${padT + innerH + 16}" text-anchor="middle">${d}</text>`;
+    });
+
+    svg.innerHTML = inner;
+    document.getElementById('nw-spark-headline').innerHTML = NET_DATA[scenario].sparkNote;
+  }
+
+  // ── Render everything ────────────────────────────────────────────────────
+  function renderAll() {
+    const scenario = window.currentScenario;
+    renderBadge(scenario);
+    renderGauge(scenario);
+    renderCollab();
+    renderPunctuality(scenario);
+    renderSparkline(scenario);
+  }
+  renderAll();
+
+  // PR1 hook: re-render on reroll
+  window.addEventListener('scenariochanged', renderAll);
+
+
+  // ════════════════════════════════════════════════════════════════════════
+  // Floating Coach Chat — same as PR1
+  // ════════════════════════════════════════════════════════════════════════
+  const HISTORY_KEY = 'coach_history';
+  let fcHistory = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
+  const fcPanel     = document.getElementById('fc-panel');
+  const fcMessages  = document.getElementById('fc-messages');
+  const fcInput     = document.getElementById('fc-input');
+  const fcSend      = document.getElementById('fc-send');
+  const fcChevron   = document.getElementById('fc-chevron');
+  const fcStatusDot = document.getElementById('fc-status-dot');
+  const fcPanelDot  = document.getElementById('fc-panel-dot');
+
+  function fcSaveHistory() { sessionStorage.setItem(HISTORY_KEY, JSON.stringify(fcHistory)); }
+  function fcSetConnected(on) {
+    const col  = on ? 'var(--accent)' : '#f87171';
+    const glow = on ? '0 0 6px var(--accent)' : '0 0 6px #f87171';
+    fcStatusDot.style.background = col; fcStatusDot.style.boxShadow = glow;
+    fcPanelDot.style.background  = col; fcPanelDot.style.boxShadow  = glow;
+  }
+  async function fcCheckConnection() {
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: '__ping__', history: [] }),
+      });
+      if (res.ok) fcSetConnected(true);
+    } catch (err) { fcSetConnected(false); }
+  }
+  fcCheckConnection();
+
+  function fcApplyState(open) {
+    if (open) { fcPanel.classList.add('open'); }
+    else { fcPanel.classList.remove('open'); fcPanel.style.maxHeight = '0'; }
+    fcPanel.style.borderColor = open ? 'var(--panel-border)' : 'transparent';
+    fcPanel.style.background  = open ? 'var(--panel-bg)' : 'transparent';
+    fcPanel.style.boxShadow   = open ? '0 2px 8px rgba(0,0,0,0.10)' : 'none';
+    fcChevron.style.transform = open ? 'rotate(180deg)' : '';
+  }
+  function fcRenderMessage(role, text) {
+    const wrap  = document.createElement('div'); wrap.className = 'fc-wrap ' + (role === 'user' ? 'user' : 'ai');
+    const label = document.createElement('div'); label.className = 'fc-label';
+    label.textContent = role === 'user' ? 'You' : 'Coach';
+    const msg   = document.createElement('div'); msg.className = 'fc-msg ' + (role === 'user' ? 'user' : 'ai');
+    msg.textContent = text;
+    wrap.appendChild(label); wrap.appendChild(msg);
+    fcMessages.appendChild(wrap); fcMessages.scrollTop = fcMessages.scrollHeight;
+  }
+  function fcToggle() {
+    fcHistory = JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
+    const fcOpen = sessionStorage.getItem('coach_open') !== 'false';
+    const newOpen = !fcOpen;
+    sessionStorage.setItem('coach_open', newOpen);
+    fcApplyState(newOpen);
+    if (newOpen) {
+      fcMessages.innerHTML = '';
       fcHistory.forEach(m => fcRenderMessage(m.role === 'user' ? 'user' : 'ai', m.content));
+      setTimeout(() => fcInput.focus(), 300);
     }
+  }
+  fcInput.addEventListener('input', () => {
+    fcInput.style.height = 'auto';
+    fcInput.style.height = Math.min(fcInput.scrollHeight, 80) + 'px';
+  });
+  fcInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); fcSendMessage(); }
+  });
+  fcSend.addEventListener('click', fcSendMessage);
+
+  async function fcSendMessage() {
+    const text = fcInput.value.trim();
+    if (!text) return;
+    fcInput.value = ''; fcInput.style.height = 'auto'; fcSend.disabled = true;
+    fcRenderMessage('user', text);
+    const typingWrap = document.createElement('div');
+    typingWrap.className = 'fc-wrap ai'; typingWrap.id = 'fc-typing';
+    typingWrap.innerHTML = '<div class="fc-label">Coach</div><div class="fc-msg ai" style="display:flex;gap:4px;align-items:center;"><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);animation:fc-blink 1.2s ease-in-out infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);animation:fc-blink 1.2s ease-in-out 0.2s infinite;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);animation:fc-blink 1.2s ease-in-out 0.4s infinite;display:inline-block;"></span></div>';
+    fcMessages.appendChild(typingWrap); fcMessages.scrollTop = fcMessages.scrollHeight;
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          history: fcHistory,
+          scenario: window.currentScenario,
+        }),
+      });
+      const data = await res.json();
+      document.getElementById('fc-typing')?.remove();
+      fcSetConnected(true);
+      if (data.error) { fcRenderMessage('ai', 'Error: ' + data.error); }
+      else {
+        fcRenderMessage('ai', data.reply);
+        fcHistory.push({ role: 'user',  content: text });
+        fcHistory.push({ role: 'coach', content: data.reply });
+        fcSaveHistory();
+      }
+    } catch (err) {
+      document.getElementById('fc-typing')?.remove();
+      fcSetConnected(false);
+      fcRenderMessage('ai', 'Could not reach the server.');
+    } finally { fcSend.disabled = false; fcInput.focus(); }
+  }
+
+  const initOpen = sessionStorage.getItem('coach_open') !== 'false';
+  fcApplyState(initOpen);
+  if (initOpen) {
+    fcHistory.forEach(m => fcRenderMessage(m.role === 'user' ? 'user' : 'ai', m.content));
+  }
   </script>
 </body>
 </html>
